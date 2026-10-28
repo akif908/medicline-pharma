@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orders — Medicline Pharma</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .page-header { padding: 48px 0 32px; }
+        .page-header h1 { font-size: 36px; margin-bottom: 8px; }
+        .orders-grid { display: flex; flex-direction: column; gap: 16px; }
+        .order-row {
+            background: var(--surface-container); border: 1px solid var(--outline-variant);
+            border-radius: var(--rounded-md); padding: 24px; transition: all var(--transition-smooth);
+        }
+        .order-row:hover { border-color: rgba(79,219,200,0.3); }
+        .order-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .order-id { font-size: 14px; color: var(--on-surface-variant); }
+        .order-items-list { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+        .order-item-chip {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 6px 14px; border-radius: var(--rounded-full);
+            background: var(--surface-container-low); border: 1px solid var(--outline-variant);
+            font-size: 13px;
+        }
+        .order-bottom { display: flex; justify-content: space-between; align-items: center; }
+        .order-total { font-size: 20px; font-weight: 700; color: var(--primary); }
+        .order-date { font-size: 13px; color: var(--on-surface-variant); }
+        .no-orders { text-align: center; padding: 80px 24px; color: var(--on-surface-variant); }
+        .no-orders .icon { font-size: 64px; margin-bottom: 16px; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="index.html" class="brand">Medicline Pharma</a>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="doctors.html">Doctors</a>
+            <a href="pharmacy.html">Pharmacy</a>
+            <a href="orders.html" class="active">Orders</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>My Orders</h1>
+            <p>Track your medical supplies and prescriptions.</p>
+        </div>
+
+        <div class="orders-grid" id="orders-container">
+            <p style="text-align:center;padding:48px;color:var(--on-surface-variant);">Loading orders...</p>
+        </div>
+    </div>
+
+    <footer class="footer mt-5">
+        <div class="container flex justify-between items-center">
+            <span class="brand" style="font-size:14px;">Medicline Pharma</span>
+            <span>© 2024 Medicline Pharma Platform.</span>
+        </div>
+    </footer>
+
+    <script>
+        async function loadOrders() {
+            const user = JSON.parse(localStorage.getItem('user') || 'null');
+            const c = document.getElementById('orders-container');
+
+            if (!user) {
+                c.innerHTML = `<div class="no-orders"><div class="icon">🔒</div><p>Please <a href="login.html" style="color:var(--primary);">log in</a> to view your orders.</p></div>`;
+                return;
+            }
+
+            try {
+                const res = await fetch(`/api/orders/user/${user.id}`);
+                const orders = await res.json();
+
+                if (!orders.length) {
+                    c.innerHTML = `<div class="no-orders"><div class="icon">📦</div><h3>No Orders Yet</h3><p style="margin-top:8px;">Browse the <a href="pharmacy.html" style="color:var(--primary);">Pharmacy</a> to place your first order.</p></div>`;
+                    return;
+                }
+
+                c.innerHTML = '';
+                orders.forEach(o => {
+                    const statusClass = o.status === 'APPROVED' ? 'badge-success' : o.status === 'PENDING' ? 'badge-warning' : 'badge-info';
+                    const date = o.timestamp ? new Date(o.timestamp).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'N/A';
+
+                    let itemsHtml = '';
+                    if (o.items && o.items.length) {
+                        o.items.forEach(item => {
+                            itemsHtml += `<span class="order-item-chip">💊 ${item.medicine?.name || 'Item'} × ${item.quantity}</span>`;
+                        });
+                    }
+
+                    c.innerHTML += `
+                    <div class="order-row animate-fade-in">
+                        <div class="order-top">
+                            <span class="order-id">Order #${o.id}</span>
+                            <span class="badge ${statusClass}">${o.status}</span>
+                        </div>
+                        <div class="order-items-list">${itemsHtml || '<span class="order-item-chip">No items</span>'}</div>
+                        <div style="margin-bottom: 12px; font-size: 13px; color: var(--on-surface-variant);">
+                            <span style="font-weight: 600;">📍 Delivery to:</span> ${o.deliveryAddress || 'Not specified'}
+                        </div>
+                        <div class="order-bottom">
+                            <span class="order-date">${date}</span>
+                            <span class="order-total">$${o.totalPrice?.toFixed(2) || '0.00'}</span>
+                        </div>
+                    </div>`;
+                });
+            } catch(e) {
+                c.innerHTML = `<div class="no-orders"><div class="icon">⚠️</div><p>Failed to load orders. Please try again.</p></div>`;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadOrders);
+    </script>
+</body>
+</html>

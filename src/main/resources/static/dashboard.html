@@ -1,0 +1,2220 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard — Medicline Pharma</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .dashboard-layout {
+            display: grid;
+            grid-template-columns: 240px 1fr;
+            min-height: calc(100vh - 80px);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: var(--surface-container);
+            border-right: 1px solid var(--outline-variant);
+            padding: 24px 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-profile {
+            padding: 0 20px 24px;
+            border-bottom: 1px solid var(--outline-variant);
+            margin-bottom: 16px;
+        }
+
+        .sidebar-profile .avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--surface-container-high);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 12px;
+            border: 2px solid var(--primary);
+        }
+
+        .sidebar-profile .name {
+            font-weight: 600;
+            font-size: 15px;
+            color: var(--primary);
+        }
+
+        .sidebar-profile .role {
+            font-size: 12px;
+            color: var(--on-surface-variant);
+        }
+
+        .sidebar-nav {
+            flex: 1;
+        }
+
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 20px;
+            color: var(--on-surface-variant);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all var(--transition-fast);
+            border-left: 3px solid transparent;
+        }
+
+        .sidebar-nav a:hover {
+            background: rgba(79, 219, 200, 0.05);
+            color: var(--on-surface);
+        }
+
+        .sidebar-nav a.active {
+            color: var(--primary);
+            background: rgba(79, 219, 200, 0.08);
+            border-left-color: var(--primary);
+        }
+
+        .sidebar-nav a .icon {
+            font-size: 18px;
+            width: 24px;
+            text-align: center;
+        }
+
+        .logout-btn {
+            margin: 16px 20px 0;
+            padding: 10px;
+            border-radius: var(--rounded);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            background: rgba(239, 68, 68, 0.08);
+            color: var(--danger);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            text-align: center;
+        }
+
+        .logout-btn:hover {
+            background: rgba(239, 68, 68, 0.2);
+        }
+
+        /* Main */
+        .main-area {
+            padding: 32px;
+            overflow-y: auto;
+        }
+
+        .welcome-header {
+            margin-bottom: 32px;
+        }
+
+        .welcome-header h1 {
+            font-size: 28px;
+            margin-bottom: 4px;
+        }
+
+        /* Overview cards */
+        .overview-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .overview-card {
+            background: var(--surface-container);
+            border: 1px solid var(--outline-variant);
+            border-radius: var(--rounded-md);
+            padding: 24px;
+            transition: all var(--transition-smooth);
+        }
+
+        .overview-card:hover {
+            border-color: rgba(79, 219, 200, 0.3);
+        }
+
+        .overview-card .ov-label {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--on-surface-variant);
+            margin-bottom: 8px;
+        }
+
+        .overview-card .ov-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--on-surface);
+        }
+
+        .overview-card .ov-sub {
+            font-size: 13px;
+            color: var(--on-surface-variant);
+            margin-top: 4px;
+        }
+
+        /* Recent sections */
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        .recent-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .recent-item {
+            background: var(--surface-container);
+            border: 1px solid var(--outline-variant);
+            border-radius: var(--rounded);
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all var(--transition-fast);
+        }
+
+        .recent-item:hover {
+            border-color: rgba(79, 219, 200, 0.2);
+        }
+
+        .recent-item .ri-info strong {
+            font-size: 14px;
+            display: block;
+        }
+
+        .recent-item .ri-info p {
+            font-size: 12px;
+            color: var(--on-surface-variant);
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        /* ---- Enhanced Appointments ---- */
+        .appt-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 28px;
+        }
+
+        .appt-stat-card {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            background: var(--surface-container);
+            border: 1px solid var(--outline-variant);
+            border-radius: 12px;
+            padding: 18px 20px;
+            transition: all var(--transition-smooth);
+        }
+
+        .appt-stat-card:hover {
+            border-color: rgba(79, 219, 200, 0.25);
+        }
+
+        .appt-stat-card .stat-icon {
+            font-size: 22px;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.04);
+            flex-shrink: 0;
+        }
+
+        .appt-stat-card .stat-num {
+            font-size: 24px;
+            font-weight: 700;
+            display: block;
+            line-height: 1.2;
+        }
+
+        .appt-stat-card .stat-lbl {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--on-surface-variant);
+        }
+
+        .appt-filter-bar {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .appt-filter-bar .filter-tab {
+            padding: 6px 18px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            border: 1px solid var(--outline-variant);
+            background: transparent;
+            color: var(--on-surface-variant);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .appt-filter-bar .filter-tab:hover {
+            border-color: var(--primary);
+            color: var(--on-surface);
+        }
+
+        .appt-filter-bar .filter-tab.active {
+            background: var(--primary);
+            color: #000;
+            border-color: var(--primary);
+        }
+
+        .appt-card {
+            background: var(--surface-container);
+            border: 1px solid var(--outline-variant);
+            border-radius: 12px;
+            padding: 20px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all var(--transition-smooth);
+            animation: fadeSlideUp 0.4s ease;
+        }
+
+        .appt-card:hover {
+            border-color: rgba(79, 219, 200, 0.25);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        }
+
+        @keyframes fadeSlideUp {
+            from {
+                opacity: 0;
+                transform: translateY(16px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .appt-card .appt-left {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .appt-card .appt-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            background: rgba(79, 219, 200, 0.1);
+            flex-shrink: 0;
+        }
+
+        .appt-card .appt-info h4 {
+            font-size: 16px;
+            font-weight: 600;
+            margin: 0 0 2px;
+        }
+
+        .appt-card .appt-info .appt-meta {
+            font-size: 12px;
+            color: var(--on-surface-variant);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .appt-card .appt-info .appt-meta span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .appt-card .appt-info .appt-reason {
+            font-size: 13px;
+            color: var(--on-surface-variant);
+            margin-top: 4px;
+            line-height: 1.4;
+        }
+
+        .appt-card .appt-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-shrink: 0;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .status-badge.pending {
+            background: rgba(255, 183, 77, 0.12);
+            color: var(--warning);
+            border: 1px solid rgba(255, 183, 77, 0.25);
+        }
+
+        .status-badge.approved {
+            background: rgba(76, 175, 80, 0.12);
+            color: var(--success);
+            border: 1px solid rgba(76, 175, 80, 0.25);
+        }
+
+        .status-badge.completed {
+            background: rgba(79, 219, 200, 0.12);
+            color: var(--primary);
+            border: 1px solid rgba(79, 219, 200, 0.25);
+        }
+
+        .status-badge.rejected {
+            background: rgba(239, 68, 68, 0.12);
+            color: var(--danger);
+            border: 1px solid rgba(239, 68, 68, 0.25);
+        }
+
+        .btn-sm-appt {
+            padding: 6px 14px;
+            font-size: 12px;
+            font-weight: 600;
+            border-radius: 6px;
+            border: 1px solid var(--outline-variant);
+            background: transparent;
+            color: var(--on-surface);
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .btn-sm-appt:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-sm-appt.approve {
+            background: var(--primary);
+            color: #000;
+            border-color: var(--primary);
+        }
+
+        .btn-sm-appt.approve:hover {
+            box-shadow: var(--glow-teal);
+        }
+
+        .btn-sm-appt.reject {
+            border-color: rgba(239, 68, 68, 0.3);
+            color: var(--danger);
+        }
+
+        .btn-sm-appt.reject:hover {
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .appt-empty {
+            text-align: center;
+            padding: 64px 24px;
+            color: var(--on-surface-variant);
+        }
+
+        .appt-empty .icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+
+        .appt-empty p {
+            font-size: 14px;
+            margin: 0;
+        }
+
+        /* ---- Enhanced Medical History ---- */
+        .history-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .history-card {
+            background: var(--surface-container);
+            border: 1px solid var(--outline-variant);
+            border-radius: 12px;
+            padding: 22px 24px;
+            transition: all var(--transition-smooth);
+            animation: fadeSlideUp 0.4s ease;
+        }
+
+        .history-card:hover {
+            border-color: rgba(79, 219, 200, 0.2);
+        }
+
+        .history-card .hc-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+
+        .history-card .hc-header .hc-doctor {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .history-card .hc-header .hc-doctor .hc-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            background: rgba(79, 219, 200, 0.08);
+            flex-shrink: 0;
+        }
+
+        .history-card .hc-header .hc-doctor h4 {
+            font-size: 15px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .history-card .hc-header .hc-doctor .hc-spec {
+            font-size: 11px;
+            color: var(--on-surface-variant);
+        }
+
+        .history-card .hc-header .hc-date {
+            font-size: 12px;
+            color: var(--on-surface-variant);
+            white-space: nowrap;
+        }
+
+        .history-card .hc-body {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .history-card .hc-body .hc-field {
+            display: flex;
+            gap: 8px;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .history-card .hc-body .hc-field .hc-label {
+            font-weight: 600;
+            color: var(--on-surface);
+            white-space: nowrap;
+            min-width: 90px;
+        }
+
+        .history-card .hc-body .hc-field .hc-value {
+            color: var(--on-surface-variant);
+        }
+
+        .history-empty {
+            text-align: center;
+            padding: 64px 24px;
+            color: var(--on-surface-variant);
+        }
+
+        .history-empty .icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+
+        .history-empty p {
+            font-size: 14px;
+            margin: 0;
+        }
+
+        .qa-card {
+            background: var(--surface-container);
+            border: 1px solid var(--outline-variant);
+            border-radius: var(--rounded-md);
+            padding: 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: all var(--transition-smooth);
+            text-decoration: none;
+            color: var(--on-surface);
+        }
+
+        .qa-card:hover {
+            border-color: var(--primary);
+            box-shadow: var(--glow-teal);
+            transform: translateY(-4px);
+        }
+
+        .qa-card .qa-icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .qa-card .qa-title {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .qa-card .qa-desc {
+            font-size: 12px;
+            color: var(--on-surface-variant);
+            margin-top: 4px;
+        }
+
+        /* Chat Page wrapped in card */
+        .chat-container-card {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            background: var(--surface-container-lowest);
+            border: 1px solid var(--outline-variant);
+            border-radius: var(--rounded-lg);
+            height: calc(100vh - 140px);
+            min-height: 500px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .chat-list-panel {
+            background: var(--surface-container-lowest);
+            border-right: 1px solid var(--outline-variant);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .chat-list-header {
+            padding: 24px;
+            border-bottom: 1px solid var(--outline-variant);
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .consult-item {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--outline-variant);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .consult-item:hover {
+            background: rgba(79, 219, 200, 0.05);
+        }
+
+        .consult-item.active {
+            background: rgba(79, 219, 200, 0.1);
+            border-left: 4px solid var(--primary);
+        }
+
+        .consult-item .c-name {
+            font-weight: 600;
+            font-size: 15px;
+            margin-bottom: 4px;
+            color: var(--on-surface);
+        }
+
+        .consult-item .c-status {
+            font-size: 12px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .consult-item .c-status.closed {
+            color: var(--outline);
+        }
+
+        .chat-main-panel {
+            display: flex;
+            flex-direction: column;
+            background: var(--surface);
+            min-height: 0;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--outline-variant);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--surface-container);
+            flex-shrink: 0;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .message {
+            max-width: 75%;
+            padding: 14px 18px;
+            border-radius: var(--rounded);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .message .timestamp {
+            font-size: 11px;
+            color: var(--outline);
+            margin-top: 6px;
+        }
+
+        .msg-patient {
+            background: var(--surface-container-high);
+            color: var(--on-surface);
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+        }
+
+        .msg-doctor {
+            background: rgba(79, 219, 200, 0.15);
+            color: var(--on-surface);
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+
+        .chat-input-bar {
+            padding: 16px 24px;
+            border-top: 1px solid var(--outline-variant);
+            display: flex;
+            gap: 12px;
+            background: var(--surface-container);
+            margin-bottom: 16px;
+            flex-shrink: 0;
+        }
+
+        .chat-input-bar input {
+            margin-bottom: 0;
+            border-radius: var(--rounded-full);
+            flex: 1;
+        }
+
+        .no-consult {
+            text-align: center;
+            padding: 64px;
+            color: var(--on-surface-variant);
+            width: 100%;
+            grid-column: 1 / -1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .no-consult .icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        /* --- Notifications --- */
+        .notif-wrapper {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .notif-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #ff4d4d;
+            color: white;
+            font-size: 10px;
+            font-weight: 800;
+            min-width: 16px;
+            height: 16px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            border: 2px solid var(--surface-container);
+        }
+
+        .notif-panel {
+            position: absolute;
+            top: 140%;
+            right: -10px;
+            width: 300px;
+            background: var(--surface-container-high);
+            border: 1px solid var(--outline-variant);
+            border-radius: 8px;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+            display: none;
+            flex-direction: column;
+            z-index: 1000;
+            overflow: hidden;
+        }
+
+        .notif-panel.open {
+            display: flex;
+        }
+
+        .notif-header {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--outline-variant);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .notif-header h4 {
+            margin: 0;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .notif-list {
+            max-height: 320px;
+            overflow-y: auto;
+        }
+
+        .notif-item {
+            padding: 12px 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            transition: background 0.2s;
+            cursor: pointer;
+        }
+
+        .notif-item:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .notif-item.unread {
+            border-left: 3px solid var(--primary);
+            background: rgba(79, 219, 200, 0.03);
+        }
+
+        .notif-msg {
+            font-size: 12px;
+            color: var(--on-surface);
+            margin-bottom: 4px;
+            line-height: 1.4;
+            text-align: left;
+        }
+
+        .notif-time {
+            font-size: 10px;
+            color: var(--on-surface-variant);
+            text-align: left;
+        }
+
+        .notif-footer {
+            padding: 10px;
+            text-align: center;
+            border-top: 1px solid var(--outline-variant);
+        }
+
+        .notif-footer a {
+            font-size: 11px;
+            color: var(--primary);
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .notif-empty {
+            padding: 32px;
+            text-align: center;
+            color: var(--on-surface-variant);
+            font-size: 12px;
+        }
+
+        .btn-icon {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+            color: var(--on-surface-variant);
+            padding: 8px;
+            border-radius: 50%;
+            transition: background 0.2s;
+        }
+
+        .btn-icon:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--primary);
+        }
+
+        /* Rating Modal */
+        .star-rating {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .star-rating .star {
+            font-size: 40px;
+            cursor: pointer;
+            color: var(--outline);
+            transition: all 0.2s;
+            user-select: none;
+        }
+
+        .star-rating .star:hover {
+            transform: scale(1.2);
+        }
+
+        .star-rating .star.active {
+            color: #f59e0b;
+            text-shadow: 0 0 12px rgba(245, 158, 11, 0.4);
+        }
+
+        .star-rating .star.hover {
+            color: #fbbf24;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 200;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.open {
+            display: flex;
+        }
+
+        .modal-card {
+            background: var(--surface-container);
+            border: 1px solid var(--outline-variant);
+            border-radius: var(--rounded-lg);
+            padding: 32px;
+            max-width: 90vw;
+            position: relative;
+        }
+
+        .modal-card h3 {
+            font-size: 20px;
+            margin-bottom: 24px;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: none;
+            border: none;
+            color: var(--on-surface-variant);
+            font-size: 20px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <a href="index.html" class="brand">Medicline Pharma</a>
+        <div class="nav-links">
+            <a href="pharmacy.html">Pharmacy</a>
+            <a href="doctors.html">Doctors</a>
+            <a href="orders.html">Orders</a>
+        </div>
+        <div class="nav-right">
+            <div class="notif-wrapper" id="notif-btn">
+                <button class="btn-icon" aria-label="Notifications" onclick="toggleNotifs(event)">🔔</button>
+                <span id="notif-badge" class="notif-badge">0</span>
+                <div id="notif-panel" class="notif-panel">
+                    <div class="notif-header">
+                        <h4>Notifications</h4>
+                        <span style="font-size: 10px; color: var(--primary); cursor: pointer;"
+                            onclick="markAllAsRead(event)">Mark all as read</span>
+                    </div>
+                    <div id="notif-list" class="notif-list">
+                        <div class="notif-empty">No new notifications</div>
+                    </div>
+                    <div class="notif-footer">
+                        <a href="#" onclick="clearAllNotifications(event)">Clear all</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="dashboard-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-profile">
+                <div class="avatar" id="sidebar-avatar">👤</div>
+                <div class="name" id="sidebar-name">Loading...</div>
+                <div class="role" id="sidebar-role">—</div>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="#" class="active" onclick="showPage('overview')"><span class="icon">📊</span> Overview</a>
+                <a href="#" id="nav-appointments" style="display:none;" onclick="showPage('appointments')"><span
+                        class="icon">📅</span> Appointments</a>
+                <a href="#" id="nav-medical-history" style="display:none;" onclick="showPage('medical-history')"><span
+                        class="icon">📋</span> Medical History</a>
+                <a href="#" id="nav-rx-requests" style="display:none;" onclick="showPage('rx-requests')"><span
+                        class="icon">📜</span> Rx Approvals</a>
+                <a href="#" id="nav-schedule" style="display:none;" onclick="showPage('schedule')"><span
+                        class="icon">⏰</span> Manage Schedule</a>
+                <a href="#" id="nav-doctor-profile" style="display:none;" onclick="showPage('doctor-profile')"><span
+                        class="icon">🧑‍⚕️</span> My Profile</a>
+                <a href="#" onclick="showPage('chat')"><span class="icon">💬</span> Consultations</a>
+                <a href="pharmacy.html"><span class="icon">💊</span> Pharmacy</a>
+                <a href="orders.html"><span class="icon">📦</span> My Orders</a>
+            </nav>
+            <button class="logout-btn" onclick="logout()">🚪 Log Out</button>
+        </aside>
+
+        <!-- Main Area -->
+        <div class="main-area" id="main-area-container">
+            <!-- Overview Page -->
+            <div id="page-overview">
+                <div class="welcome-header">
+                    <h1 id="welcome-msg">Welcome back!</h1>
+                    <p>Here's an overview of your activity.</p>
+                </div>
+
+                <div class="overview-grid" id="overview-cards">
+                    <!-- Filled by JS based on role -->
+                </div>
+
+                <div class="two-col">
+                    <div>
+                        <h3 class="section-title">Quick Actions</h3>
+                        <div class="quick-actions" id="quick-actions">
+                            <!-- Filled by JS -->
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="section-title">Recent Orders</h3>
+                        <div class="recent-list" id="recent-orders">
+                            <p style="color:var(--on-surface-variant);font-size:14px;">No orders yet.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Appointments Page -->
+            <div id="page-appointments" style="display:none; padding: 24px;">
+                <div class="welcome-header">
+                    <h1>📅 Appointments</h1>
+                    <p>Manage your appointment requests and approvals.</p>
+                </div>
+                <div class="appt-stats" id="appt-stats">
+                    <div class="appt-stat-card">
+                        <div class="stat-icon">⏳</div>
+                        <div><span class="stat-num" id="stat-pending">0</span><span class="stat-lbl">Pending</span>
+                        </div>
+                    </div>
+                    <div class="appt-stat-card">
+                        <div class="stat-icon">✓</div>
+                        <div><span class="stat-num" id="stat-approved">0</span><span class="stat-lbl">Approved</span>
+                        </div>
+                    </div>
+                    <div class="appt-stat-card">
+                        <div class="stat-icon">✅</div>
+                        <div><span class="stat-num" id="stat-completed">0</span><span class="stat-lbl">Completed</span>
+                        </div>
+                    </div>
+                    <div class="appt-stat-card">
+                        <div class="stat-icon">✕</div>
+                        <div><span class="stat-num" id="stat-rejected">0</span><span class="stat-lbl">Rejected</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="appt-filter-bar" id="appt-filter-bar">
+                    <button class="filter-tab active" data-filter="all">All</button>
+                    <button class="filter-tab" data-filter="PENDING">Pending</button>
+                    <button class="filter-tab" data-filter="APPROVED">Approved</button>
+                    <button class="filter-tab" data-filter="COMPLETED">Completed</button>
+                    <button class="filter-tab" data-filter="REJECTED">Rejected</button>
+                </div>
+                <div id="appointments-list"></div>
+            </div>
+
+            <!-- Medical History Page -->
+            <div id="page-medical-history" style="display:none; padding: 24px;">
+                <div class="welcome-header">
+                    <h1>📋 Medical History</h1>
+                    <p>Your past consultations, diagnoses, and prescriptions.</p>
+                </div>
+                <div class="history-grid" id="medical-history-list">
+                    <div class="history-empty">
+                        <div class="icon">📄</div>
+                        <p>Loading...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Prescription Requests (Rx) Page -->
+            <div id="page-rx-requests" style="display:none; padding: 24px;">
+                <div class="welcome-header">
+                    <h1>📋 Prescription Requests</h1>
+                    <p>Track status and feedback for your controlled medication purchases.</p>
+                </div>
+                <div class="card" style="padding: 24px; background: var(--surface-container); border: 1px solid var(--outline-variant); border-radius: var(--rounded-md);">
+                    <h3 style="margin-bottom:16px; color:var(--primary); font-size:16px;">My Requests</h3>
+                    <div id="user-rx-requests-list" style="display:flex; flex-direction:column; gap:16px;">
+                        <p style="color:var(--on-surface-variant); font-size:14px; text-align:center; padding:32px;">Loading requests...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Manage Schedule Page (Doctor Only) -->
+            <div id="page-schedule" style="display:none; padding: 24px;">
+                <div class="welcome-header">
+                    <h1>Manage Schedule</h1>
+                    <p>Add availability slots for patients to book.</p>
+                </div>
+                <div class="two-col">
+                    <div
+                        style="background: var(--surface-container); border: 1px solid var(--outline-variant); border-radius: var(--rounded-md); padding: 24px;">
+                        <h3 class="section-title">Add New Slot</h3>
+                        <label
+                            style="font-size: 13px; font-weight: 600; margin-bottom: 4px; display: block;">Date</label>
+                        <input type="date" id="slot-date"
+                            style="width:100%; margin-bottom:16px; padding:10px; background:var(--surface-container-high); border:1px solid var(--outline-variant); color:var(--on-surface); border-radius:var(--rounded);">
+
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                            <div>
+                                <label
+                                    style="font-size: 13px; font-weight: 600; margin-bottom: 4px; display: block;">Start
+                                    Time</label>
+                                <input type="time" id="slot-start"
+                                    style="width:100%; margin-bottom:16px; padding:10px; background:var(--surface-container-high); border:1px solid var(--outline-variant); color:var(--on-surface); border-radius:var(--rounded);">
+                            </div>
+                            <div>
+                                <label
+                                    style="font-size: 13px; font-weight: 600; margin-bottom: 4px; display: block;">End
+                                    Time</label>
+                                <input type="time" id="slot-end"
+                                    style="width:100%; margin-bottom:16px; padding:10px; background:var(--surface-container-high); border:1px solid var(--outline-variant); color:var(--on-surface); border-radius:var(--rounded);">
+                            </div>
+                        </div>
+                        <button class="btn btn-primary w-full" onclick="addSlot()">Add Slot</button>
+                        <div id="slot-msg" style="font-size:13px; margin-top:12px; display:none;"></div>
+                    </div>
+                    <div>
+                        <h3 class="section-title">Upcoming Slots</h3>
+                        <div class="recent-list" id="upcoming-slots-list">
+                            <p style="color:var(--on-surface-variant);font-size:14px;">Loading...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Doctor Profile Page (Doctor Only) -->
+            <div id="page-doctor-profile" style="display:none; padding: 24px;">
+                <div class="welcome-header">
+                    <h1>🧑‍⚕️ My Profile</h1>
+                    <p>Update your professional details to attract the right patients.</p>
+                </div>
+                <div class="card" style="padding: 24px; background: var(--surface-container); border: 1px solid var(--outline-variant); border-radius: var(--rounded-md); max-width: 600px;">
+                    <label style="font-size: 13px; font-weight: 600; margin-bottom: 4px; display: block;">Specialization Field</label>
+                    <select id="doc-specialization" style="width:100%; margin-bottom:16px; padding:10px; background:var(--surface-container-high); border:1px solid var(--outline-variant); color:var(--on-surface); border-radius:var(--rounded);">
+                        <option value="">Select a specialization...</option>
+                        <option value="General Medicine">General Medicine</option>
+                        <option value="Dermatology (Skin)">Dermatology (Skin)</option>
+                        <option value="Cardiology (Heart)">Cardiology (Heart)</option>
+                        <option value="Pediatrics">Pediatrics</option>
+                        <option value="Neurology">Neurology</option>
+                        <option value="Psychiatry">Psychiatry</option>
+                    </select>
+
+                    <label style="font-size: 13px; font-weight: 600; margin-bottom: 4px; display: block;">Years of Experience</label>
+                    <input type="number" id="doc-experience" min="0" placeholder="e.g., 5"
+                        style="width:100%; margin-bottom:16px; padding:10px; background:var(--surface-container-high); border:1px solid var(--outline-variant); color:var(--on-surface); border-radius:var(--rounded);">
+
+                    <label style="font-size: 13px; font-weight: 600; margin-bottom: 4px; display: block;">Professional Bio</label>
+                    <textarea id="doc-bio" rows="4" placeholder="Tell patients about your background and expertise..."
+                        style="width:100%; margin-bottom:16px; padding:10px; background:var(--surface-container-high); border:1px solid var(--outline-variant); color:var(--on-surface); border-radius:var(--rounded);"></textarea>
+
+                    <button class="btn btn-primary w-full" onclick="updateDoctorProfile()">Save Profile Updates</button>
+                    <div id="profile-msg" style="font-size:13px; margin-top:12px; display:none; text-align: center;"></div>
+                </div>
+            </div>
+
+            <!-- Chat / Consultations Page (hidden by default) -->
+            <div id="page-chat" style="display:none; padding: 24px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                    <h1 style="margin:0;">Consultations</h1>
+                    <button id="view-history-btn-top" class="btn btn-outline" style="font-size:12px; padding:8px 16px;"
+                        onclick="openHistoryModal()">📋 View Medical History</button>
+                </div>
+                <div class="chat-container-card" style="height: calc(100vh - 180px);">
+                    <div class="chat-list-panel">
+                        <div class="chat-list-header"
+                            style="display:flex;justify-content:space-between;align-items:center;">
+                            <span>My Consultations</span>
+                        </div>
+                        <div id="consultation-list">
+                            <p style="padding: 24px; color: var(--on-surface-variant); font-size: 14px;">Loading...</p>
+                        </div>
+                    </div>
+                    <div class="chat-main-panel" id="chat-main-panel" style="display:none;">
+                        <div class="chat-header">
+                            <div>
+                                <strong id="chat-partner-name">Consultation</strong>
+                                <div style="font-size:13px;color:var(--primary);display:flex;align-items:center;gap:6px;"
+                                    id="chat-status-line">
+                                    <span class="pulse-dot"></span> Active
+                                </div>
+                            </div>
+                            <div style="display:flex; gap:8px;">
+                                <button id="view-history-btn" class="btn btn-outline"
+                                    style="font-size:12px; padding:8px 16px;" onclick="openHistoryModal()">📋 View
+                                    History</button>
+                                <button id="add-notes-btn" class="btn btn-outline"
+                                    style="font-size:12px; padding:8px 16px; display:none;"
+                                    onclick="openMedicalNotesModal()">📝 Add Medical Notes</button>
+                                <button id="rate-doctor-btn" class="btn btn-outline"
+                                    style="font-size:12px; padding:8px 16px; display:none;"
+                                    onclick="openRatingModal()">⭐ Rate Doctor</button>
+                                <button id="complete-appt-btn" class="btn btn-outline"
+                                    style="font-size:12px; padding:8px 16px; display:none;"
+                                    onclick="completeAppointment()">Complete Appointment</button>
+                            </div>
+                        </div>
+                        <div class="chat-messages" id="chat-messages">
+                            <!-- Messages here -->
+                        </div>
+                        <div class="chat-input-bar" id="chat-input-bar">
+                            <input type="text" id="chat-input" placeholder="Type your message..."
+                                onkeypress="if(event.key === 'Enter') sendMessage()">
+                            <button class="btn-icon" onclick="document.getElementById('file-input').click()"
+                                title="Upload image">📎</button>
+                            <input type="file" id="file-input" accept="image/*" style="display:none;"
+                                onchange="uploadAndSendFile(event)">
+                            <button class="btn btn-primary btn-sm" onclick="sendMessage()">Send →</button>
+                        </div>
+                    </div>
+                    <div id="no-consult-selected" class="no-consult" style="grid-column: 2; height: 100%;">
+                        <div class="icon">💬</div>
+                        <p>Select a consultation from the list or <br>book a doctor from the <a href="doctors.html"
+                                style="color:var(--primary);">Doctors page</a>.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- History Viewer Modal (Doctor) -->
+    <div class="modal-overlay" id="history-modal">
+        <div class="modal-card" style="max-width: 600px; max-height: 80vh; overflow-y: auto;">
+            <button class="close-modal" onclick="closeHistoryModal()">✕</button>
+            <h3 style="margin-bottom: 16px;">📋 Patient Medical History</h3>
+            <div id="history-modal-content">
+                <p style="color:var(--on-surface-variant);font-size:14px;">Loading...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Medical Notes Modal (Doctor) -->
+    <div class="modal-overlay" id="medical-notes-modal">
+        <div class="modal-card" style="max-width: 500px;">
+            <button class="close-modal" onclick="closeMedicalNotesModal()">✕</button>
+            <h3 style="margin-bottom: 16px;">📝 Add Medical Notes</h3>
+            <label style="font-size:13px;font-weight:600;display:block;margin-bottom:4px;">Diagnosis</label>
+            <textarea id="diagnosis-input" rows="3" placeholder="Enter diagnosis..."
+                style="margin-bottom:12px;"></textarea>
+            <label style="font-size:13px;font-weight:600;display:block;margin-bottom:4px;">Additional Notes</label>
+            <textarea id="notes-input" rows="3" placeholder="Follow-up notes, recommendations..."
+                style="margin-bottom:12px;"></textarea>
+            <div id="medical-notes-msg" style="font-size:13px;margin-bottom:12px;display:none;"></div>
+            <button class="btn btn-primary w-full" id="submit-notes-btn" onclick="submitMedicalNotes()">Save Medical
+                History</button>
+        </div>
+    </div>
+
+    <!-- Rating Modal -->
+    <div class="modal-overlay" id="rating-modal">
+        <div class="modal-card" style="max-width: 420px; text-align: center;">
+            <button class="close-modal" onclick="closeRatingModal()">✕</button>
+            <h3 style="margin-bottom: 8px;">⭐ Rate Your Doctor</h3>
+            <p style="margin-bottom: 20px; font-size: 14px; color: var(--on-surface-variant);">How was your consultation
+                experience?</p>
+            <div class="star-rating" id="star-rating">
+                <span class="star" data-value="1" onclick="setRating(1)">☆</span>
+                <span class="star" data-value="2" onclick="setRating(2)">☆</span>
+                <span class="star" data-value="3" onclick="setRating(3)">☆</span>
+                <span class="star" data-value="4" onclick="setRating(4)">☆</span>
+                <span class="star" data-value="5" onclick="setRating(5)">☆</span>
+            </div>
+            <div style="font-size:13px; color:var(--on-surface-variant); margin-bottom: 16px;" id="rating-label">Select
+                a rating</div>
+            <textarea id="review-comment" rows="3" placeholder="Share your experience (optional)"
+                style="margin-bottom: 16px;"></textarea>
+            <div id="rating-msg" style="font-size:13px; margin-bottom:12px; display:none;"></div>
+            <button class="btn btn-primary w-full" id="submit-rating-btn" onclick="submitRating()">Submit
+                Review</button>
+        </div>
+    </div>
+
+    <script>
+        const user = JSON.parse(localStorage.getItem('user') || 'null');
+        if (!user) { window.location.href = 'login.html'; }
+
+        let currentConsultationId = null;
+        let currentDoctorId = null;
+        let currentDoctorName = null;
+        let currentPatientId = null;
+        let currentConsultationStatus = null;
+        let pollingInterval = null;
+
+        // ---- Init ----
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!user) return;
+            document.getElementById('sidebar-name').textContent = user.name;
+            document.getElementById('sidebar-role').textContent = user.role;
+            document.getElementById('sidebar-avatar').textContent = user.role === 'DOCTOR' ? '🩺' : user.role === 'ADMIN' ? '👑' : '👤';
+            document.getElementById('welcome-msg').textContent = `Welcome back, ${user.name.split(' ')[0]}!`;
+
+            // Show nav items based on role
+            if (user.role === 'PATIENT' || user.role === 'DOCTOR') {
+                document.getElementById('nav-appointments').style.display = 'flex';
+            }
+            if (user.role === 'PATIENT' || user.role === 'DOCTOR') {
+                document.getElementById('nav-medical-history').style.display = 'flex';
+            }
+            if (user.role === 'PATIENT') {
+                document.getElementById('nav-rx-requests').style.display = 'flex';
+            }
+            if (user.role === 'DOCTOR') {
+                document.getElementById('nav-schedule').style.display = 'flex';
+                document.getElementById('nav-doctor-profile').style.display = 'flex';
+            }
+
+            loadOverview();
+            loadRecentOrders();
+            fetchNotifications();
+            setInterval(fetchNotifications, 10000); // Poll every 10s
+        });
+
+        function showPage(page) {
+            document.getElementById('page-overview').style.display = page === 'overview' ? 'block' : 'none';
+            document.getElementById('page-chat').style.display = page === 'chat' ? 'block' : 'none';
+            document.getElementById('page-appointments').style.display = page === 'appointments' ? 'block' : 'none';
+            document.getElementById('page-medical-history').style.display = page === 'medical-history' ? 'block' : 'none';
+            document.getElementById('page-schedule').style.display = page === 'schedule' ? 'block' : 'none';
+            document.getElementById('page-rx-requests').style.display = page === 'rx-requests' ? 'block' : 'none';
+            document.getElementById('page-doctor-profile').style.display = page === 'doctor-profile' ? 'block' : 'none';
+
+            document.querySelectorAll('.sidebar-nav a').forEach(a => a.classList.remove('active'));
+            if (event && event.target && event.target.closest) {
+                const link = event.target.closest('a');
+                if (link) link.classList.add('active');
+            }
+
+            if (page === 'chat') {
+                loadConsultations();
+            } else if (page === 'appointments') {
+                loadAppointments();
+            } else if (page === 'medical-history') {
+                loadMedicalHistory();
+            } else if (page === 'schedule') {
+                loadSchedule();
+            } else if (page === 'rx-requests') {
+                loadUserRxRequests();
+            } else if (page === 'doctor-profile') {
+                loadDoctorProfile();
+            } else {
+                if (pollingInterval) clearInterval(pollingInterval);
+            }
+        }
+
+        async function loadOverview() {
+            const cards = document.getElementById('overview-cards');
+            const actions = document.getElementById('quick-actions');
+
+            if (user.role === 'PATIENT') {
+                // Fetch real consultation count
+                let consultCount = 0;
+                try {
+                    const res = await fetch(`/api/consultations/patient/${user.id}`);
+                    const data = await res.json();
+                    consultCount = data.length;
+                } catch (e) { }
+
+                let orderCount = 0;
+                try {
+                    const res = await fetch(`/api/orders/user/${user.id}`);
+                    const data = await res.json();
+                    orderCount = data.length;
+                } catch (e) { }
+
+                cards.innerHTML = `
+                    <div class="overview-card"><div class="ov-label">My Consultations</div><div class="ov-value">${consultCount}</div><div class="ov-sub">Total consultations</div></div>
+                    <div class="overview-card"><div class="ov-label">My Orders</div><div class="ov-value">${orderCount}</div><div class="ov-sub">Total orders placed</div></div>
+                    <div class="overview-card"><div class="ov-label">Account Status</div><div class="ov-value" style="color:var(--success);font-size:18px;">Active</div><div class="ov-sub">Patient account</div></div>
+                `;
+                actions.innerHTML = `
+                    <a href="doctors.html" class="qa-card"><div class="qa-icon">👨‍⚕️</div><div class="qa-title">Find a Doctor</div><div class="qa-desc">Book a consultation</div></a>
+                    <a href="pharmacy.html" class="qa-card"><div class="qa-icon">💊</div><div class="qa-title">Pharmacy</div><div class="qa-desc">Order medicines</div></a>
+                    <a href="#" class="qa-card" onclick="showPage('chat')"><div class="qa-icon">💬</div><div class="qa-title">Consultations</div><div class="qa-desc">View messages</div></a>
+                    <a href="orders.html" class="qa-card"><div class="qa-icon">📦</div><div class="qa-title">Orders</div><div class="qa-desc">Track deliveries</div></a>
+                `;
+            } else if (user.role === 'DOCTOR') {
+                let consultCount = 0;
+                let pendingCount = 0;
+                try {
+                    // Use direct by-user endpoint — no fragile client-side find()
+                    const apptsRes = await fetch(`/api/appointments/by-user/${user.id}`);
+                    const appts = await apptsRes.json();
+                    pendingCount = appts.filter(a => a.status === 'PENDING').length;
+
+                    // Store the doctor entity ID for later use (from any appointment, or /api/doctors)
+                    if (appts.length > 0) {
+                        localStorage.setItem('myDocId', appts[0].doctor.id);
+                    } else {
+                        // Fallback: fetch from /api/doctors if no appointments yet
+                        const docRes = await fetch('/api/doctors');
+                        const docs = await docRes.json();
+                        const myDoc = docs.find(d => String(d.user.id) === String(user.id));
+                        if (myDoc) localStorage.setItem('myDocId', myDoc.id);
+                    }
+
+                    const docId = localStorage.getItem('myDocId');
+                    if (docId) {
+                        const consRes = await fetch(`/api/consultations/doctor/${docId}`);
+                        const data = await consRes.json();
+                        consultCount = data.length;
+                    }
+                } catch (e) { console.error('loadOverview doctor error', e); }
+                cards.innerHTML = `
+                    <div class="overview-card"><div class="ov-label">Pending Requests</div><div class="ov-value" style="color:var(--warning);">${pendingCount}</div><div class="ov-sub">Needs approval</div></div>
+                    <div class="overview-card"><div class="ov-label">Active Consultations</div><div class="ov-value">${consultCount}</div><div class="ov-sub">Assigned to you</div></div>
+                    <div class="overview-card"><div class="ov-label">Status</div><div class="ov-value" style="color:var(--success);font-size:18px;">Online</div><div class="ov-sub">Available for consults</div></div>
+                `;
+                actions.innerHTML = `
+                    <a href="#" class="qa-card" onclick="showPage('appointments')"><div class="qa-icon">📅</div><div class="qa-title">Appointments</div><div class="qa-desc">Approve requests</div></a>
+                    <a href="#" class="qa-card" onclick="showPage('chat')"><div class="qa-icon">💬</div><div class="qa-title">Consultations</div><div class="qa-desc">Reply to patients</div></a>
+                    <a href="#" class="qa-card" onclick="showPage('schedule')"><div class="qa-icon">⏰</div><div class="qa-title">Schedule</div><div class="qa-desc">Manage availability</div></a>
+                    <a href="pharmacy.html" class="qa-card"><div class="qa-icon">💊</div><div class="qa-title">Pharmacy</div><div class="qa-desc">View medicines</div></a>
+                `;
+            } else {
+                cards.innerHTML = `
+                    <div class="overview-card"><div class="ov-label">Role</div><div class="ov-value" style="font-size:18px;">Admin</div><div class="ov-sub">Full access</div></div>
+                    <div class="overview-card"><div class="ov-label">System</div><div class="ov-value" style="color:var(--success);font-size:18px;">Online</div><div class="ov-sub">All systems operational</div></div>
+                    <div class="overview-card"><div class="ov-label">Platform</div><div class="ov-value" style="font-size:18px;">Medicline Pharma</div><div class="ov-sub">v1.0</div></div>
+                `;
+                actions.innerHTML = `
+                    <a href="pharmacy.html" class="qa-card"><div class="qa-icon">💊</div><div class="qa-title">Manage Medicines</div><div class="qa-desc">Add/edit stock</div></a>
+                    <a href="doctors.html" class="qa-card"><div class="qa-icon">👨‍⚕️</div><div class="qa-title">Manage Doctors</div><div class="qa-desc">View all staff</div></a>
+                `;
+            }
+        }
+
+        async function loadRecentOrders() {
+            try {
+                const res = await fetch(`/api/orders/user/${user.id}`);
+                const orders = await res.json();
+                const list = document.getElementById('recent-orders');
+                if (!orders.length) return;
+                list.innerHTML = '';
+                orders.slice(0, 4).forEach(o => {
+                    list.innerHTML += `
+                    <div class="recent-item">
+                        <div class="ri-info">
+                            <strong>Order #${o.id}</strong>
+                            <p>${o.items?.length || 0} items — ${o.status}</p>
+                        </div>
+                        <span style="font-weight:700;">$${o.totalPrice?.toFixed(2) || '0.00'}</span>
+                    </div>`;
+                });
+            } catch (e) { }
+        }
+
+        // ---- Appointments ----
+        let allAppointments = [];
+        let apptFilter = 'all';
+
+        async function loadAppointments() {
+            const list = document.getElementById('appointments-list');
+            try {
+                const endpoint = user.role === 'DOCTOR'
+                    ? `/api/appointments/by-user/${user.id}`
+                    : `/api/appointments/patient/${user.id}`;
+                const res = await fetch(endpoint);
+                const appts = await res.json();
+                allAppointments = appts;
+                renderAppointments();
+            } catch (e) {
+                list.innerHTML = '<div class="appt-empty"><div class="icon">⚠️</div><p>Failed to load appointments.</p></div>';
+            }
+        }
+
+        function renderAppointments() {
+            const list = document.getElementById('appointments-list');
+            const filtered = apptFilter === 'all'
+                ? allAppointments
+                : allAppointments.filter(a => a.status === apptFilter);
+
+            // Update stats
+            const counts = { PENDING: 0, APPROVED: 0, COMPLETED: 0, REJECTED: 0 };
+            allAppointments.forEach(a => { if (counts[a.status] !== undefined) counts[a.status]++; });
+            document.getElementById('stat-pending').textContent = counts.PENDING;
+            document.getElementById('stat-approved').textContent = counts.APPROVED;
+            document.getElementById('stat-completed').textContent = counts.COMPLETED;
+            document.getElementById('stat-rejected').textContent = counts.REJECTED;
+
+            if (!filtered.length) {
+                list.innerHTML = '<div class="appt-empty"><div class="icon">📅</div><p>No appointments found for this filter.</p></div>';
+                return;
+            }
+            list.innerHTML = '';
+            filtered.forEach((a, i) => {
+                const partnerName = user.role === 'DOCTOR' ? a.patient?.name || 'Patient' : `Dr. ${a.doctor?.user?.name || 'Unknown'}`;
+                const avatar = user.role === 'DOCTOR' ? '👤' : '🩺';
+                const statusClass = (a.status || '').toLowerCase();
+                const dateStr = a.appointmentDate ? new Date(a.appointmentDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+                const timeStr = a.startTime || '';
+                list.innerHTML += `
+                    <div class="appt-card" style="animation-delay:${i * 0.06}s">
+                        <div class="appt-left">
+                            <div class="appt-avatar">${avatar}</div>
+                            <div class="appt-info">
+                                <h4>${partnerName}</h4>
+                                <div class="appt-meta">
+                                    <span>📅 ${dateStr}</span>
+                                    ${timeStr ? `<span>⏰ ${timeStr}</span>` : ''}
+                                    ${a.doctor?.specialization ? `<span>🏷️ ${a.doctor.specialization}</span>` : ''}
+                                </div>
+                                ${a.reason ? `<div class="appt-reason">${a.reason}</div>` : ''}
+                            </div>
+                        </div>
+                        <div class="appt-right">
+                            <span class="status-badge ${statusClass}">${a.status}</span>
+                            ${user.role === 'DOCTOR' && a.status === 'PENDING' ? `
+                                <button class="btn-sm-appt approve" onclick="handleAppointment(${a.id},'approve')">✓ Approve</button>
+                                <button class="btn-sm-appt reject" onclick="handleAppointment(${a.id},'reject')">✕ Reject</button>
+                            ` : ''}
+                        </div>
+                    </div>`;
+            });
+        }
+
+        // Filter tabs for appointments
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                const filterBar = document.getElementById('appt-filter-bar');
+                if (!filterBar) return;
+                filterBar.addEventListener('click', (e) => {
+                    const tab = e.target.closest('.filter-tab');
+                    if (!tab) return;
+                    filterBar.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    apptFilter = tab.dataset.filter;
+                    renderAppointments();
+                });
+            }, 100);
+        });
+
+        async function handleAppointment(id, action) {
+            try {
+                await fetch(`/api/appointments/${id}/${action}`, { method: 'POST' });
+                loadAppointments();
+            } catch (e) { console.error(e); }
+        }
+
+        // ---- Medical History ----
+        async function loadMedicalHistory() {
+            const list = document.getElementById('medical-history-list');
+            try {
+                let endpoint;
+                if (user.role === 'DOCTOR') {
+                    const docId = localStorage.getItem('myDocId');
+                    endpoint = `/api/medical-history/doctor/${docId}`;
+                } else {
+                    endpoint = `/api/medical-history/patient/${user.id}`;
+                }
+                const res = await fetch(endpoint);
+                const history = await res.json();
+                if (!history.length) {
+                    list.innerHTML = '<div class="history-empty"><div class="icon">📄</div><p>No medical history found yet.</p></div>';
+                    return;
+                }
+                list.innerHTML = '';
+                history.forEach((h, i) => {
+                    const name = user.role === 'DOCTOR' ? (h.patient?.name || 'Patient') : (h.doctor?.user?.name || 'Unknown Doctor');
+                    const spec = user.role === 'DOCTOR' ? '' : (h.doctor?.specialization || '');
+                    const date = h.visitDate ? new Date(h.visitDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : '';
+                    const avatar = user.role === 'DOCTOR' ? '👤' : '🩺';
+                    list.innerHTML += `
+                    <div class="history-card" style="animation-delay:${i * 0.06}s">
+                        <div class="hc-header">
+                            <div class="hc-doctor">
+                                <div class="hc-avatar">${avatar}</div>
+                                <div>
+                                    <h4>${name}</h4>
+                                    ${spec ? `<div class="hc-spec">${spec}</div>` : ''}
+                                </div>
+                            </div>
+                            <div class="hc-date">${date}</div>
+                        </div>
+                        <div class="hc-body">
+                            ${h.diagnosis ? `<div class="hc-field"><span class="hc-label">Diagnosis</span><span class="hc-value">${h.diagnosis}</span></div>` : ''}
+                            ${h.prescription ? `<div class="hc-field"><span class="hc-label">Prescription</span><span class="hc-value">${h.prescription}</span></div>` : ''}
+                            ${h.notes ? `<div class="hc-field"><span class="hc-label">Notes</span><span class="hc-value">${h.notes}</span></div>` : ''}
+                        </div>
+                    </div>`;
+                });
+            } catch (e) {
+                list.innerHTML = '<div class="history-empty"><div class="icon">⚠️</div><p>Failed to load medical history.</p></div>';
+            }
+        }
+
+        async function loadPatientHistoryForDoctor(patientId) {
+            try {
+                const docId = localStorage.getItem('myDocId');
+                if (!docId) return [];
+                const res = await fetch(`/api/medical-history/patient/${patientId}/doctor/${docId}`);
+                return await res.json();
+            } catch (e) { return []; }
+        }
+
+        async function openHistoryModal() {
+            document.getElementById('history-modal').classList.add('open');
+            const content = document.getElementById('history-modal-content');
+            content.innerHTML = '<p style="color:var(--on-surface-variant);font-size:14px;">Loading...</p>';
+
+            let history;
+            if (user.role === 'DOCTOR') {
+                if (!currentPatientId) {
+                    content.innerHTML = '<p style="color:var(--on-surface-variant);font-size:14px;">No patient selected.</p>';
+                    return;
+                }
+                history = await loadPatientHistoryForDoctor(currentPatientId);
+            } else {
+                const res = await fetch(`/api/medical-history/patient/${user.id}`);
+                history = await res.json();
+            }
+
+            if (!history.length) {
+                content.innerHTML = '<p style="color:var(--on-surface-variant);font-size:14px;">No medical history found.</p>';
+                return;
+            }
+            content.innerHTML = '';
+            history.forEach(h => {
+                const date = h.visitDate ? new Date(h.visitDate).toLocaleDateString() : '';
+                const docName = h.doctor?.user?.name || 'Unknown Doctor';
+                content.innerHTML += `
+                <div class="recent-item" style="flex-direction:column;align-items:stretch;gap:6px;margin-bottom:12px;">
+                    <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--on-surface-variant);">
+                        <span>${docName}</span>
+                        <span>${date}</span>
+                    </div>
+                    ${h.diagnosis ? `<div><strong>Diagnosis:</strong> ${h.diagnosis}</div>` : ''}
+                    ${h.prescription ? `<div><strong>Prescription:</strong> ${h.prescription}</div>` : ''}
+                    ${h.notes ? `<div><strong>Notes:</strong> ${h.notes}</div>` : ''}
+                </div>`;
+            });
+        }
+
+        function closeHistoryModal() {
+            document.getElementById('history-modal').classList.remove('open');
+        }
+
+        async function openMedicalNotesModal() {
+            document.getElementById('medical-notes-modal').classList.add('open');
+            document.getElementById('diagnosis-input').value = '';
+            document.getElementById('notes-input').value = '';
+            document.getElementById('medical-notes-msg').style.display = 'none';
+            document.getElementById('submit-notes-btn').disabled = false;
+            document.getElementById('submit-notes-btn').textContent = 'Save Medical History';
+        }
+
+        function closeMedicalNotesModal() {
+            document.getElementById('medical-notes-modal').classList.remove('open');
+        }
+
+        async function submitMedicalNotes() {
+            const diagnosis = document.getElementById('diagnosis-input').value.trim();
+            const notes = document.getElementById('notes-input').value.trim();
+            if (!diagnosis && !notes) {
+                const msg = document.getElementById('medical-notes-msg');
+                msg.textContent = 'Please enter at least a diagnosis or notes.';
+                msg.style.color = 'var(--danger)';
+                msg.style.display = 'block';
+                return;
+            }
+            const btn = document.getElementById('submit-notes-btn');
+            btn.disabled = true;
+            btn.textContent = 'Saving...';
+            try {
+                const res = await fetch('/api/medical-history', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        consultationId: currentConsultationId,
+                        diagnosis: diagnosis,
+                        notes: notes
+                    })
+                });
+                if (res.ok) {
+                    const msg = document.getElementById('medical-notes-msg');
+                    msg.textContent = '✅ Medical history saved successfully!';
+                    msg.style.color = 'var(--success)';
+                    msg.style.display = 'block';
+                    btn.textContent = 'Saved';
+                    setTimeout(closeMedicalNotesModal, 1500);
+                } else {
+                    const err = await res.text();
+                    const msg = document.getElementById('medical-notes-msg');
+                    msg.textContent = '❌ ' + err;
+                    msg.style.color = 'var(--danger)';
+                    msg.style.display = 'block';
+                    btn.disabled = false;
+                    btn.textContent = 'Save Medical History';
+                }
+            } catch (e) {
+                const msg = document.getElementById('medical-notes-msg');
+                msg.textContent = '❌ Network error.';
+                msg.style.color = 'var(--danger)';
+                msg.style.display = 'block';
+                btn.disabled = false;
+                btn.textContent = 'Save Medical History';
+            }
+        }
+
+        // ---- Notifications ----
+        async function fetchNotifications() {
+            try {
+                // --- Badge: use the dedicated unread-count endpoint ---
+                const countRes = await fetch(`/api/notifications/unread-count?userId=${user.id}`);
+                const unreadCount = await countRes.json();
+                const badge = document.getElementById('notif-badge');
+                if (unreadCount > 0) {
+                    badge.textContent = unreadCount;
+                    badge.style.display = 'flex';
+                } else {
+                    badge.style.display = 'none';
+                }
+
+                // --- List: fetch all notifications ---
+                const res = await fetch(`/api/notifications?userId=${user.id}`);
+                const notifs = await res.json();
+                const list = document.getElementById('notif-list');
+
+                if (!notifs.length) {
+                    list.innerHTML = '<div class="notif-empty">No new notifications</div>';
+                    return;
+                }
+                list.innerHTML = '';
+                notifs.forEach(n => {
+                    const time = n.createdAt ? new Date(n.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+                    list.innerHTML += `
+                    <div class="notif-item ${n.isRead ? '' : 'unread'}" onclick="markNotifRead(${n.id})">
+                        <div class="notif-msg">${n.message}</div>
+                        <div class="notif-time">${time}</div>
+                    </div>`;
+                });
+            } catch (e) { console.error('fetchNotifications error', e); }
+        }
+
+        async function markNotifRead(id) {
+            try {
+                await fetch(`/api/notifications/${id}/read`, { method: 'POST' });
+                fetchNotifications();
+            } catch (e) { console.error(e); }
+        }
+
+        function toggleNotifs(ev) {
+            ev.stopPropagation();
+            document.getElementById('notif-panel').classList.toggle('open');
+        }
+
+        async function markAllAsRead(ev) {
+            ev.stopPropagation();
+            try {
+                await fetch(`/api/notifications/read-all?userId=${user.id}`, { method: 'POST' });
+                fetchNotifications();
+            } catch (e) { console.error(e); }
+        }
+
+        async function clearAllNotifications(ev) {
+            ev.stopPropagation();
+            try {
+                await fetch(`/api/notifications?userId=${user.id}`, { method: 'DELETE' });
+                fetchNotifications();
+            } catch (e) { console.error(e); }
+        }
+
+        // Close notification panel when clicking outside
+        document.addEventListener('click', function (e) {
+            const panel = document.getElementById('notif-panel');
+            const btn = document.getElementById('notif-btn');
+            if (panel && btn && !btn.contains(e.target)) {
+                panel.classList.remove('open');
+            }
+        });
+
+        // ---- Consultations / Chat ----
+        async function loadConsultations() {
+            try {
+                let docId = user.role === 'DOCTOR' ? localStorage.getItem('myDocId') : null;
+
+                // If doctor and docId not set, fetch it first
+                if (user.role === 'DOCTOR' && !docId) {
+                    const docRes = await fetch('/api/doctors');
+                    const docs = await docRes.json();
+                    const myDoc = docs.find(d => d.user.id === user.id);
+                    if (myDoc) {
+                        docId = myDoc.id;
+                        localStorage.setItem('myDocId', myDoc.id);
+                    }
+                }
+
+                const endpoint = user.role === 'DOCTOR'
+                    ? `/api/consultations/doctor/${docId}`
+                    : `/api/consultations/patient/${user.id}`;
+
+                const res = await fetch(endpoint);
+                const consults = await res.json();
+
+                const list = document.getElementById('consultation-list');
+
+                if (consults.length > 0) {
+                    list.innerHTML = '';
+                    consults.forEach(c => {
+                        const partnerName = user.role === 'DOCTOR' ? c.patient?.name : `Dr. ${c.doctor?.user?.name || 'Unknown'}`;
+                        const statusClass = c.status === 'OPEN' ? '' : 'closed';
+                        const dot = c.status === 'OPEN' ? '<span class="pulse-dot"></span>' : '⚪';
+                        const docId = c.doctor?.id || 0;
+                        const patId = c.patient?.id || 0;
+
+                        list.innerHTML += `
+                            <div class="consult-item ${currentConsultationId === c.id ? 'active' : ''}" onclick="selectConsultation(${c.id}, '${partnerName}', '${c.status}', ${docId}, ${patId})">
+                                <div class="c-name">${partnerName}</div>
+                                <div class="c-status ${statusClass}">${dot} ${c.status}</div>
+                            </div>
+                        `;
+                    });
+
+                    if (!currentConsultationId && consults.length > 0) {
+                        const first = consults[0];
+                        const partnerName = user.role === 'DOCTOR' ? first.patient?.name : `Dr. ${first.doctor?.user?.name || 'Unknown'}`;
+                        const docId = first.doctor?.id || 0;
+                        const patId = first.patient?.id || 0;
+                        selectConsultation(first.id, partnerName, first.status, docId, patId);
+                    }
+                } else {
+                    list.innerHTML = '<p style="padding: 24px; color: var(--on-surface-variant); font-size: 14px;">No consultations found.</p>';
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        function selectConsultation(id, partnerName, status, doctorId, patientId) {
+            currentConsultationId = id;
+            currentDoctorId = doctorId;
+            currentDoctorName = partnerName;
+            currentPatientId = patientId;
+            currentConsultationStatus = status;
+            document.getElementById('chat-partner-name').textContent = partnerName;
+
+            const statusLine = document.getElementById('chat-status-line');
+            const rateBtn = document.getElementById('rate-doctor-btn');
+            const historyBtn = document.getElementById('view-history-btn');
+            const notesBtn = document.getElementById('add-notes-btn');
+            if (status === 'OPEN') {
+                statusLine.innerHTML = '<span class="pulse-dot"></span> Active';
+                statusLine.style.color = 'var(--primary)';
+                document.getElementById('chat-input-bar').style.display = 'flex';
+                if (rateBtn) rateBtn.style.display = 'none';
+                if (historyBtn) historyBtn.style.display = 'inline-flex';
+                if (notesBtn && user.role === 'DOCTOR') notesBtn.style.display = 'none';
+            } else {
+                statusLine.innerHTML = '⚪ Closed';
+                statusLine.style.color = 'var(--outline)';
+                document.getElementById('chat-input-bar').style.display = 'none';
+                if (rateBtn && user.role === 'PATIENT') {
+                    checkIfReviewed(id).then(hasReviewed => {
+                        rateBtn.style.display = hasReviewed ? 'none' : 'inline-flex';
+                    });
+                }
+                if (historyBtn) historyBtn.style.display = 'inline-flex';
+                if (notesBtn && user.role === 'DOCTOR') notesBtn.style.display = 'inline-flex';
+            }
+
+            document.getElementById('no-consult-selected').style.display = 'none';
+            document.getElementById('chat-main-panel').style.display = 'flex';
+
+            // Refresh list to show active state
+            loadConsultations();
+
+            // Show/hide complete button if doctor
+            if (user.role === 'DOCTOR' && status === 'OPEN') {
+                document.getElementById('complete-appt-btn').style.display = 'block';
+            } else {
+                document.getElementById('complete-appt-btn').style.display = 'none';
+            }
+
+            // Start polling for messages
+            if (pollingInterval) clearInterval(pollingInterval);
+            loadMessages(currentConsultationId);
+            pollingInterval = setInterval(() => {
+                if (currentConsultationId) loadMessages(currentConsultationId, true);
+            }, 3000);
+        }
+
+        async function checkIfReviewed(consultId) {
+            try {
+                const res = await fetch(`/api/reviews/check?consultationId=${consultId}`);
+                const data = await res.json();
+                return data.hasReviewed;
+            } catch (e) { return false; }
+        }
+
+        let lastMessageCount = 0;
+
+        async function loadMessages(consultId, isPolling = false) {
+            try {
+                const res = await fetch(`/api/consultations/${consultId}/messages`);
+                const msgs = await res.json();
+
+                if (isPolling && msgs.length === lastMessageCount) return; // No new messages
+                lastMessageCount = msgs.length;
+
+                const container = document.getElementById('chat-messages');
+
+                // Track scroll position to keep it at bottom if already at bottom
+                const isAtBottom = container.scrollHeight - container.clientHeight <= container.scrollTop + 10;
+
+                container.innerHTML = '';
+                msgs.forEach(m => {
+                    // Doctor is always sender if m.sender.id == doctor's user id. Patient if m.sender.id == patient's user id.
+                    const isDoctor = m.sender?.role === 'DOCTOR';
+                    // We style based on whether the current user is the sender
+                    const isMe = m.sender?.id === user.id;
+
+                    const imgHtml = m.imageUrl ? `<img src="${m.imageUrl}" style="max-width:240px;border-radius:8px;display:block;margin:4px 0;" onerror="this.style.display='none'">` : '';
+                    container.innerHTML += `
+                    <div class="message ${isMe ? 'msg-doctor' : 'msg-patient'}" style="align-self: ${isMe ? 'flex-end' : 'flex-start'}; background: ${isMe ? 'rgba(79,219,200,0.15)' : 'var(--surface-container-high)'};">
+                        ${m.content ? `<div>${m.content}</div>` : ''}
+                        ${imgHtml}
+                        <div class="timestamp">${new Date(m.timestamp).toLocaleTimeString()}</div>
+                    </div>`;
+                });
+
+                if (isAtBottom || !isPolling) {
+                    container.scrollTop = container.scrollHeight;
+                }
+            } catch (e) { }
+        }
+
+        async function sendMessage() {
+            if (!currentConsultationId) return;
+            const input = document.getElementById('chat-input');
+            const content = input.value.trim();
+            if (!content) return;
+            input.value = '';
+            try {
+                await fetch(`/api/consultations/${currentConsultationId}/messages`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ senderId: user.id, content })
+                });
+                loadMessages(currentConsultationId);
+            } catch (e) { }
+        }
+
+        async function uploadAndSendFile(event) {
+            const file = event.target.files[0];
+            if (!file || !currentConsultationId) return;
+            event.target.value = '';
+            const formData = new FormData();
+            formData.append('file', file);
+            try {
+                const uploadRes = await fetch('/api/upload', { method: 'POST', body: formData });
+                const data = await uploadRes.json();
+                if (data.url) {
+                    await fetch(`/api/consultations/${currentConsultationId}/messages`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ senderId: user.id, content: '', imageUrl: data.url })
+                    });
+                    loadMessages(currentConsultationId);
+                }
+            } catch (e) { console.error('Upload error', e); }
+        }
+
+        async function completeAppointment() {
+            if (!currentConsultationId) return;
+            // Get consultation info to find matching appointment or just use a custom endpoint
+            // Wait, we need the appointment ID. 
+            // In a real app we'd link Consultation to Appointment.
+            // For now, let's fetch doctor appointments and find the open one for this patient
+            try {
+                const consultRes = await fetch(`/api/consultations/${currentConsultationId}`);
+                const consult = await consultRes.json();
+
+                const docId = localStorage.getItem('myDocId');
+                const apptsRes = await fetch(`/api/appointments/doctor/${docId}`);
+                const appts = await apptsRes.json();
+
+                const activeAppt = appts.find(a => a.patient.id === consult.patient.id && a.status === 'APPROVED');
+                if (activeAppt) {
+                    await fetch(`/api/appointments/${activeAppt.id}/complete`, { method: 'POST' });
+                    alert("Appointment completed and consultation closed.");
+                    loadConsultations(); // refresh
+                    document.getElementById('chat-input-bar').style.display = 'none';
+                    document.getElementById('complete-appt-btn').style.display = 'none';
+                    document.getElementById('chat-status-line').innerHTML = '⚪ Closed';
+                    document.getElementById('chat-status-line').style.color = 'var(--outline)';
+                    document.getElementById('add-notes-btn').style.display = 'inline-flex';
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        // ---- Rating ----
+        let selectedRating = 0;
+
+        function openRatingModal() {
+            selectedRating = 0;
+            document.getElementById('rating-label').textContent = 'Select a rating';
+            document.getElementById('review-comment').value = '';
+            document.getElementById('rating-msg').style.display = 'none';
+            document.getElementById('submit-rating-btn').disabled = false;
+            document.getElementById('submit-rating-btn').textContent = 'Submit Review';
+            document.querySelectorAll('.star').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.star').forEach(s => s.textContent = '☆');
+            document.getElementById('rating-modal').classList.add('open');
+        }
+
+        function closeRatingModal() {
+            document.getElementById('rating-modal').classList.remove('open');
+        }
+
+        function setRating(val) {
+            selectedRating = val;
+            document.querySelectorAll('.star').forEach((s, i) => {
+                if (i < val) {
+                    s.classList.add('active');
+                    s.textContent = '★';
+                } else {
+                    s.classList.remove('active');
+                    s.textContent = '☆';
+                }
+            });
+            const labels = ['', 'Poor', 'Fair', 'Good', 'Very Good', 'Excellent'];
+            document.getElementById('rating-label').textContent = labels[val] + ' (' + val + '/5)';
+        }
+
+        async function submitRating() {
+            if (selectedRating === 0) {
+                document.getElementById('rating-msg').textContent = 'Please select a rating.';
+                document.getElementById('rating-msg').style.color = 'var(--danger)';
+                document.getElementById('rating-msg').style.display = 'block';
+                return;
+            }
+            const btn = document.getElementById('submit-rating-btn');
+            btn.disabled = true;
+            btn.textContent = 'Submitting...';
+            const comment = document.getElementById('review-comment').value.trim();
+            try {
+                const res = await fetch('/api/reviews', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        patientId: user.id,
+                        doctorId: currentDoctorId,
+                        consultationId: currentConsultationId,
+                        rating: selectedRating,
+                        comment: comment
+                    })
+                });
+                if (res.ok) {
+                    document.getElementById('rating-msg').textContent = '✅ Review submitted! Thank you.';
+                    document.getElementById('rating-msg').style.color = 'var(--success)';
+                    document.getElementById('rating-msg').style.display = 'block';
+                    document.getElementById('rate-doctor-btn').style.display = 'none';
+                    btn.textContent = 'Submitted';
+                    setTimeout(closeRatingModal, 1500);
+                } else {
+                    const err = await res.text();
+                    document.getElementById('rating-msg').textContent = '❌ ' + err;
+                    document.getElementById('rating-msg').style.color = 'var(--danger)';
+                    document.getElementById('rating-msg').style.display = 'block';
+                    btn.disabled = false;
+                    btn.textContent = 'Submit Review';
+                }
+            } catch (e) {
+                document.getElementById('rating-msg').textContent = '❌ Network error.';
+                document.getElementById('rating-msg').style.color = 'var(--danger)';
+                document.getElementById('rating-msg').style.display = 'block';
+                btn.disabled = false;
+                btn.textContent = 'Submit Review';
+            }
+        }
+
+        async function loadUserRxRequests() {
+            const container = document.getElementById('user-rx-requests-list');
+            try {
+                const res = await fetch(`/api/prescription-requests/user/${user.id}`);
+                const data = await res.json();
+                
+                if (data.length === 0) {
+                    container.innerHTML = `<p style="color:var(--on-surface-variant); font-size:14px; text-align:center; padding:32px;">You haven't submitted any prescription requests yet.</p>`;
+                    return;
+                }
+
+                container.innerHTML = '';
+                data.forEach(r => {
+                    const dateStr = new Date(r.createdAt).toLocaleString();
+                    let badgeClass = 'badge-warning';
+                    if (r.status === 'APPROVED') badgeClass = 'badge-success';
+                    if (r.status === 'REJECTED') badgeClass = 'badge-danger';
+                    
+                    const adminNoteHtml = r.adminNote 
+                        ? `<div style="margin-top:8px; font-size:12px; padding:8px 12px; background:var(--surface-container-low); border-left:3px solid var(--primary); border-radius:4px;">
+                             <strong>Admin Feedback:</strong> ${r.adminNote}
+                           </div>` 
+                        : '';
+                    
+                    const docLinkHtml = r.prescriptionImageUrl
+                        ? `<a href="${r.prescriptionImageUrl}" target="_blank" style="color:var(--primary); font-size:12px; text-decoration:underline; display:inline-block; margin-top:4px;">View Attached Prescription Document</a>`
+                        : '';
+
+                    container.innerHTML += `
+                        <div class="card" style="padding:16px; border:1px solid var(--outline-variant); background:var(--surface-container-high); margin-bottom:8px;">
+                            <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                                <div>
+                                    <h4 style="margin:0; font-size:15px; color:var(--on-surface);">${r.medicine.name}</h4>
+                                    <div style="font-size:11px; color:var(--outline); margin-top:2px;">Category: ${r.medicine.category} | Submitted: ${dateStr}</div>
+                                </div>
+                                <span class="badge ${badgeClass}" style="padding:4px 8px; font-size:11px; font-weight:600; border-radius:4px;">${r.status}</span>
+                            </div>
+                            <p style="margin:8px 0 0; font-size:13px; color:var(--on-surface-variant); line-height:1.4;">
+                                <strong>My Note:</strong> ${r.patientNote || 'No description note provided.'}
+                            </p>
+                            ${docLinkHtml}
+                            ${adminNoteHtml}
+                        </div>
+                    `;
+                });
+            } catch (e) {
+                console.error(e);
+                container.innerHTML = `<p style="color:var(--danger); font-size:14px; text-align:center; padding:32px;">Error loading prescription requests. Please try again later.</p>`;
+            }
+        }
+
+        // ---- Doctor Profile ----
+        async function loadDoctorProfile() {
+            try {
+                // Ensure we have doctor ID
+                let docId = localStorage.getItem('myDocId');
+                if (!docId) {
+                    const docRes = await fetch('/api/doctors');
+                    const docs = await docRes.json();
+                    const myDoc = docs.find(d => String(d.user.id) === String(user.id));
+                    if (myDoc) {
+                        docId = myDoc.id;
+                        localStorage.setItem('myDocId', docId);
+                    }
+                }
+                if (!docId) return;
+
+                const res = await fetch(`/api/doctors/${docId}`);
+                const doctor = await res.json();
+                
+                document.getElementById('doc-specialization').value = doctor.specialization || '';
+                document.getElementById('doc-experience').value = doctor.experience || '';
+                document.getElementById('doc-bio').value = doctor.bio || '';
+            } catch (e) {
+                console.error('Error loading doctor profile:', e);
+            }
+        }
+
+        async function updateDoctorProfile() {
+            const btn = event.target;
+            btn.disabled = true;
+            btn.textContent = 'Saving...';
+            const msg = document.getElementById('profile-msg');
+            msg.style.display = 'none';
+
+            try {
+                const docId = localStorage.getItem('myDocId');
+                const spec = document.getElementById('doc-specialization').value;
+                const exp = document.getElementById('doc-experience').value;
+                const bio = document.getElementById('doc-bio').value;
+
+                const res = await fetch(`/api/doctors/${docId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        specialization: spec,
+                        experience: exp ? parseInt(exp) : 0,
+                        bio: bio
+                    })
+                });
+
+                if (res.ok) {
+                    msg.textContent = '✅ Profile updated successfully!';
+                    msg.style.color = 'var(--success)';
+                } else {
+                    msg.textContent = '❌ Failed to update profile.';
+                    msg.style.color = 'var(--danger)';
+                }
+            } catch (e) {
+                msg.textContent = '❌ Network error.';
+                msg.style.color = 'var(--danger)';
+            }
+            
+            msg.style.display = 'block';
+            btn.disabled = false;
+            btn.textContent = 'Save Profile Updates';
+            setTimeout(() => msg.style.display = 'none', 3000);
+        }
+
+        function logout() {
+            localStorage.removeItem('user');
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+
+</html>

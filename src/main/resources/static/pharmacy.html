@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pharmacy — Medicline Pharma</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .page-header {
+            padding: 48px 0 32px;
+        }
+
+        .page-header h1 {
+            font-size: 36px;
+            margin-bottom: 8px;
+        }
+
+        .search-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 40px;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .filter-chip {
+            padding: 8px 18px;
+            border-radius: 24px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--outline-variant);
+            color: var(--on-surface-variant);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .filter-chip:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--primary);
+        }
+
+        .filter-chip.active {
+            background: var(--primary);
+            color: #000;
+            border-color: var(--primary);
+            font-weight: 600;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+        }
+
+        .product-card {
+            background: var(--surface-container);
+            border: 1px solid var(--outline-variant);
+            border-radius: var(--rounded-md);
+            overflow: hidden;
+            transition: all var(--transition-smooth);
+        }
+
+        .product-card:hover {
+            transform: translateY(-6px);
+            border-color: rgba(79, 219, 200, 0.3);
+            box-shadow: var(--glow-teal);
+        }
+
+        .product-img {
+            height: 180px;
+            background: var(--surface-container-low);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            position: relative;
+        }
+
+        .product-img .stock-tag {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+        }
+
+        .product-body {
+            padding: 20px;
+        }
+
+        .product-body h4 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .product-body .sub {
+            font-size: 13px;
+            color: var(--on-surface-variant);
+        }
+
+        .stock-indicator {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            margin: 12px 0;
+        }
+
+        .stock-indicator.in-stock {
+            color: var(--success);
+        }
+
+        .stock-indicator.in-stock::before {
+            content: '●';
+        }
+
+        .stock-indicator.low-stock {
+            color: var(--warning);
+        }
+
+        .stock-indicator.low-stock::before {
+            content: '●';
+        }
+
+        .stock-indicator.out-of-stock {
+            color: var(--danger);
+        }
+
+        .stock-indicator.out-of-stock::before {
+            content: '●';
+        }
+
+        .product-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .product-price {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--on-surface);
+        }
+
+        .add-cart-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: var(--rounded);
+            border: 1px solid var(--outline-variant);
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--primary);
+            font-size: 18px;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .add-cart-btn:hover:not(:disabled) {
+            background: var(--primary);
+            color: var(--on-primary);
+            border-color: var(--primary);
+        }
+
+        .add-cart-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .cart-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border-radius: var(--rounded-full);
+            background: rgba(79, 219, 200, 0.15);
+            color: var(--primary);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* Cart Drawer */
+        .cart-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 200;
+            display: none;
+        }
+
+        .cart-overlay.open {
+            display: block;
+        }
+
+        .cart-drawer {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 420px;
+            height: 100vh;
+            background: var(--surface-container);
+            border-left: 1px solid var(--outline-variant);
+            z-index: 201;
+            display: flex;
+            flex-direction: column;
+            transform: translateX(100%);
+            transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .cart-drawer.open {
+            transform: translateX(0);
+        }
+
+        .cart-drawer-header {
+            padding: 24px;
+            border-bottom: 1px solid var(--outline-variant);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .cart-drawer-header h3 {
+            font-size: 18px;
+        }
+
+        .close-cart {
+            background: none;
+            border: none;
+            color: var(--on-surface-variant);
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .cart-items {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px 24px;
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .cart-item-info {
+            flex: 1;
+        }
+
+        .cart-item-info strong {
+            font-size: 14px;
+            display: block;
+        }
+
+        .cart-item-info p {
+            font-size: 12px;
+            color: var(--on-surface-variant);
+        }
+
+        .cart-item-price {
+            font-weight: 700;
+            color: var(--primary);
+            min-width: 60px;
+            text-align: right;
+        }
+
+        .cart-item-remove {
+            background: none;
+            border: none;
+            color: var(--danger);
+            cursor: pointer;
+            font-size: 16px;
+            margin-left: 12px;
+        }
+
+        .cart-footer {
+            padding: 24px;
+            border-top: 1px solid var(--outline-variant);
+        }
+
+        .cart-total {
+            display: flex;
+            justify-content: space-between;
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .cart-total .total-val {
+            color: var(--primary);
+        }
+
+        .empty-cart {
+            text-align: center;
+            padding: 48px 24px;
+            color: var(--on-surface-variant);
+        }
+
+        .empty-cart .icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        /* Checkout Modal */
+        .cart-qty-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        .cart-qty-controls button {
+            width: 28px;
+            height: 28px;
+            border-radius: 4px;
+            border: 1px solid var(--outline-variant);
+            background: var(--surface-container-high);
+            color: var(--on-surface);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .cart-qty-controls button:hover {
+            background: var(--primary);
+            color: var(--on-primary);
+            border-color: var(--primary);
+        }
+
+        .cart-qty-controls span {
+            font-weight: 600;
+            font-size: 14px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .checkout-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 300;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+
+        .checkout-overlay.open {
+            display: flex;
+        }
+
+        .checkout-card {
+            background: #1a1c1e;
+            border: 1px solid var(--outline-variant);
+            border-radius: 24px;
+            padding: 32px;
+            width: 450px;
+            max-width: 90vw;
+            position: relative;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .checkout-card h3 {
+            margin-bottom: 24px;
+            font-size: 22px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .payment-methods {
+            display: flex;
+            flex-direction: column;
+            background: transparent;
+            padding: 0;
+            border: 1px solid var(--outline-variant);
+            border-radius: 16px;
+            overflow: hidden;
+            margin-bottom: 24px;
+            margin-top: 12px;
+        }
+
+        .payment-option {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid var(--outline-variant);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .payment-option:last-child {
+            border-bottom: none;
+        }
+
+        .payment-option:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .payment-option input[type="radio"] {
+            display: none;
+        }
+
+        .custom-radio {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            border: 2px solid var(--outline);
+            margin-right: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        .payment-option input[type="radio"]:checked+.custom-radio {
+            border-color: var(--primary);
+        }
+
+        .payment-option input[type="radio"]:checked+.custom-radio::after {
+            content: '';
+            width: 10px;
+            height: 10px;
+            background: var(--primary);
+            border-radius: 50%;
+        }
+
+        .payment-label-group {
+            display: flex;
+            align-items: center;
+            flex: 1;
+            font-size: 15px;
+            font-weight: 500;
+            color: #fff;
+        }
+
+        .payment-icons {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .payment-icons img {
+            height: 24px;
+            object-fit: contain;
+            background: transparent;
+            border-radius: 2px;
+        }
+
+        .checkout-input {
+            width: 100%;
+            padding: 14px 16px;
+            background: #111;
+            border: 1px solid var(--outline-variant);
+            border-radius: 12px;
+            color: #fff;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .checkout-input:focus {
+            border-color: var(--primary);
+        }
+
+        .checkout-input::placeholder {
+            color: #666;
+        }
+
+        .card-input-row {
+            display: flex;
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            background: none;
+            border: none;
+            color: var(--on-surface-variant);
+            font-size: 24px;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .close-modal:hover {
+            color: #fff;
+        }
+
+        @media (max-width: 768px) {
+            .product-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .cart-drawer {
+                width: 100%;
+            }
+        }
+
+        /* Prescription Request Modal */
+        .rx-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 500;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(6px);
+        }
+
+        .rx-modal-overlay.open {
+            display: flex;
+        }
+
+        .rx-modal {
+            background: var(--surface-container-high);
+            border: 1px solid var(--outline-variant);
+            border-radius: 20px;
+            padding: 32px;
+            width: 480px;
+            max-width: 95vw;
+            position: relative;
+            box-shadow: 0 24px 48px rgba(0, 0, 0, 0.5);
+        }
+
+        .rx-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: var(--rounded-full);
+            padding: 3px 10px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+        }
+
+        .rx-tag {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <a href="index.html" class="brand">Medicline Pharma</a>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="doctors.html">Doctors</a>
+            <a href="pharmacy.html" class="active">Pharmacy</a>
+            <a href="orders.html">Orders</a>
+        </div>
+        <div class="nav-right">
+            <span class="cart-badge" onclick="toggleCart()">🛒 <span id="cart-count">0</span> items — $<span
+                    id="cart-total-nav">0.00</span></span>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <span class="overline mb-1" style="display:block;">Medical <span class="text-primary">Supplies</span> &
+                Wellness</span>
+            <h1>Pharmacy Catalog</h1>
+        </div>
+        <div class="search-row" style="gap: 12px; flex-wrap: wrap;">
+            <input type="text" id="search-med" class="search-pill" placeholder="Search by name, category or symptoms..."
+                style="flex: 1; min-width: 280px;">
+            <div class="filter-chips" style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <button class="filter-chip active" onclick="filterByTag('All')">All</button>
+                <button class="filter-chip" onclick="filterByTag('Antibiotic')">Antibiotic</button>
+                <button class="filter-chip" onclick="filterByTag('Pain Relief')">Pain Relief</button>
+                <button class="filter-chip" onclick="filterByTag('Capsules')">Capsules</button>
+            </div>
+        </div>
+        <div class="product-grid stagger" id="product-container">
+            <p style="grid-column:1/-1;text-align:center;padding:48px;">Loading medicines...</p>
+        </div>
+    </div>
+
+    <!-- Cart Overlay -->
+    <div class="cart-overlay" id="cart-overlay" onclick="toggleCart()"></div>
+    <!-- Cart Drawer -->
+    <div class="cart-drawer" id="cart-drawer">
+        <div class="cart-drawer-header">
+            <h3>🛒 Your Cart</h3>
+            <button class="close-cart" onclick="toggleCart()">✕</button>
+        </div>
+        <div class="cart-items" id="cart-items-list"></div>
+        <div class="cart-footer">
+            <div class="cart-total">
+                <span>Total</span>
+                <span class="total-val" id="cart-total-bottom">$0.00</span>
+            </div>
+            <button class="btn btn-primary w-full" id="checkout-btn" onclick="checkout()" disabled>Proceed to
+                Checkout</button>
+            <p id="checkout-msg" style="margin-top:12px;font-size:13px;text-align:center;display:none;"></p>
+        </div>
+    </div>
+
+    <!-- Checkout Modal -->
+    <div class="checkout-overlay" id="checkout-modal">
+        <div class="checkout-card">
+            <button class="close-modal" onclick="closeCheckout()">✕</button>
+            <h3>Secure Checkout</h3>
+
+            <!-- Step 1: Address -->
+            <div id="checkout-step-1">
+                <label style="font-weight:600;margin-bottom:8px;display:block;color:#ccc;font-size:14px;">Delivery
+                    Address</label>
+                <textarea id="delivery-address" rows="3" class="checkout-input" style="margin-bottom:24px;resize:none;"
+                    placeholder="Enter your full delivery address..."></textarea>
+                <button class="btn btn-primary w-full"
+                    style="padding:16px;font-size:15px;font-weight:600;border-radius:12px;color:#000;"
+                    onclick="nextCheckoutStep(2)">Continue to Payment</button>
+            </div>
+
+            <!-- Step 2: Payment -->
+            <div id="checkout-step-2" style="display:none;">
+                <label style="font-weight:600;display:block;color:#ccc;font-size:14px;">Payment Method</label>
+                <div class="payment-methods">
+                    <label class="payment-option">
+                        <input type="radio" name="pay-method" value="CARD" checked onchange="togglePaymentFields()">
+                        <div class="custom-radio"></div>
+                        <div class="payment-label-group">Visa / Mastercard</div>
+                        <div class="payment-icons">
+                            <svg width="40" height="24" viewBox="0 0 40 24" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <rect width="40" height="24" rx="4" fill="#fff" />
+                                <text x="20" y="16" font-family="Arial" font-size="12" font-weight="bold"
+                                    font-style="italic" fill="#1434CB" text-anchor="middle">VISA</text>
+                            </svg>
+                            <svg width="40" height="24" viewBox="0 0 40 24" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <rect width="40" height="24" rx="4" fill="#fff" />
+                                <circle cx="16" cy="12" r="6" fill="#EB001B" />
+                                <circle cx="24" cy="12" r="6" fill="#F79E1B" />
+                            </svg>
+                        </div>
+                    </label>
+                    <label class="payment-option">
+                        <input type="radio" name="pay-method" value="COD" onchange="togglePaymentFields()">
+                        <div class="custom-radio"></div>
+                        <div class="payment-label-group">Cash on Delivery</div>
+                        <div class="payment-icons" style="font-size:20px;line-height:1;">💵</div>
+                    </label>
+                </div>
+
+                <div id="card-details" style="margin-bottom:24px;">
+                    <input type="text" placeholder="Card Number (e.g. 4111 1111 1111 1111)" class="checkout-input">
+                    <div class="card-input-row">
+                        <input type="text" placeholder="MM/YY" class="checkout-input">
+                        <input type="text" placeholder="CVC" class="checkout-input">
+                    </div>
+                </div>
+
+                <button class="btn btn-primary w-full"
+                    style="padding:16px;font-size:15px;font-weight:600;border-radius:12px;color:#000;"
+                    onclick="confirmOrder()" id="confirm-btn">Pay & Place Order</button>
+                <p id="checkout-final-msg" style="text-align:center;margin-top:16px;font-weight:600;display:none;"></p>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer mt-5">
+        <div class="container flex justify-between items-center">
+            <span class="brand" style="font-size:14px;">Medicline Pharma</span>
+            <span>© 2024 Medicline Pharma Platform. All rights reserved.</span>
+        </div>
+    </footer>
+
+    <!-- Prescription Request Modal -->
+    <div class="rx-modal-overlay" id="rx-modal-overlay">
+        <div class="rx-modal">
+            <button onclick="closeRxModal()"
+                style="position:absolute;top:16px;right:20px;background:none;border:none;color:var(--on-surface-variant);font-size:24px;cursor:pointer;">✕</button>
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+                <div
+                    style="width:44px;height:44px;border-radius:50%;background:rgba(239,68,68,0.15);display:flex;align-items:center;justify-content:center;font-size:22px;">
+                    💊</div>
+                <div>
+                    <h3 style="font-size:18px;font-weight:700;margin:0;">Prescription Required</h3>
+                    <p style="font-size:13px;color:var(--on-surface-variant);margin:2px 0 0;">This medicine requires a
+                        valid doctor's prescription</p>
+                </div>
+            </div>
+
+            <div
+                style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:12px;padding:12px 16px;margin-bottom:20px;font-size:13px;color:#ef4444;">
+                ⚠️ <strong id="rx-medicine-name">This medicine</strong> is a controlled substance. Submit your
+                prescription below and an admin will review your request.
+            </div>
+
+            <div id="rx-form-area">
+                <label
+                    style="font-size:13px;font-weight:600;color:var(--on-surface-variant);margin-bottom:6px;display:block;">Doctor's
+                    Note / Prescription Details</label>
+                <textarea id="rx-patient-note" rows="4"
+                    placeholder="Describe your prescription or paste details from your doctor (e.g. 'Prescribed by Dr. Ahmed for bacterial infection — Amoxicillin 500mg twice daily for 7 days')..."
+                    style="width:100%;padding:12px;background:var(--surface-container-low);border:1px solid var(--outline-variant);border-radius:12px;color:var(--on-surface);outline:none;resize:vertical;margin-bottom:14px;font-family:inherit;font-size:14px;"></textarea>
+
+                <label
+                    style="font-size:13px;font-weight:600;color:var(--on-surface-variant);margin-bottom:6px;display:block;">Upload
+                    Prescription File <span style="font-weight:400;color:var(--outline);">(optional)</span></label>
+
+                <div id="file-upload-area"
+                    style="border:2px dashed var(--outline-variant);border-radius:12px;padding:28px 20px;text-align:center;margin-bottom:20px;background:var(--surface-container-low);transition:border-color 0.3s,background 0.3s;cursor:pointer;position:relative;overflow:hidden;"
+                    ondragover="handleRxDragOver(event)" ondragleave="handleRxDragLeave(event)"
+                    ondrop="handleRxDrop(event)" onclick="document.getElementById('rx-file-input').click()">
+                    <div style="font-size:36px;color:var(--primary);margin-bottom:10px;">☁️</div>
+                    <div style="font-size:14px;font-weight:600;color:var(--on-surface);margin-bottom:6px;">Drag and Drop
+                        Files</div>
+                    <div style="font-size:12px;color:var(--on-surface-variant);margin-bottom:14px;">— Or —</div>
+                    <button type="button"
+                        style="padding:8px 24px;border-radius:8px;border:none;background:var(--primary);color:var(--on-primary);font-size:13px;font-weight:600;cursor:pointer;"
+                        onclick="event.stopPropagation();document.getElementById('rx-file-input').click()">Browse</button>
+                    <input type="file" id="rx-file-input" accept="image/*,.pdf" style="display:none;"
+                        onchange="handleRxFileSelect(event)">
+
+                    <div id="upload-status"
+                        style="display:none;position:absolute;inset:0;background:var(--surface-container);flex-direction:column;align-items:center;justify-content:center;gap:8px;">
+                        <div id="upload-status-icon" style="font-size:28px;">🔄</div>
+                        <div id="upload-status-text" style="font-size:13px;font-weight:600;color:var(--on-surface);">
+                            Uploading...</div>
+                        <button id="upload-remove-btn" type="button"
+                            style="display:none;padding:4px 14px;border:1px solid var(--danger);color:var(--danger);background:rgba(239,68,68,0.1);border-radius:6px;font-size:12px;cursor:pointer;"
+                            onclick="event.stopPropagation();removeRxUpload()">✕ Remove</button>
+                    </div>
+                </div>
+                <input type="hidden" id="rx-image-url" value="">
+
+                <div id="rx-status-msg"
+                    style="display:none;padding:12px;border-radius:10px;font-size:13px;margin-bottom:16px;"></div>
+
+                <button onclick="submitRxRequest()" class="btn btn-primary w-full" id="rx-submit-btn"
+                    style="font-size:15px;padding:14px;">
+                    📋 Submit Prescription Request
+                </button>
+            </div>
+
+            <div id="rx-already-approved" style="display:none;text-align:center;padding:12px 0;">
+                <div style="font-size:36px;margin-bottom:8px;">✅</div>
+                <p style="font-weight:600;color:var(--primary);font-size:16px;">Prescription Already Approved!</p>
+                <p style="font-size:13px;color:var(--on-surface-variant);margin-bottom:16px;">You can add this medicine
+                    to your cart.</p>
+                <button onclick="closeRxModal(); addToCart(currentRxMedicineId, true);"
+                    class="btn btn-primary w-full">🛒 Add to Cart</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let medicines = [];
+        let cart = [];
+        let currentRxMedicineId = null;
+
+        // Categories that require a prescription
+        const CONTROLLED_CATEGORIES = ['Antibiotics', 'Antidiabetics', 'Cardiovascular', 'Neurological', 'Hormones', 'Antiparasitics', 'Antivirals'];
+
+        function requiresPrescription(medicine) {
+            if (!medicine.category) return false;
+            return CONTROLLED_CATEGORIES.includes(medicine.category);
+        }
+
+        async function loadMedicines() {
+            try {
+                const res = await fetch('/api/medicines');
+                medicines = await res.json();
+                renderProducts(medicines);
+            } catch (e) { console.error(e); }
+        }
+
+        function filterMedicines() {
+            const query = document.getElementById('search-med').value.toLowerCase();
+            renderProducts(medicines.filter(m =>
+                m.name.toLowerCase().includes(query) ||
+                (m.description && m.description.toLowerCase().includes(query))
+            ));
+        }
+
+        function filterByTag(tag) {
+            document.querySelectorAll('.filter-chip').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.textContent === tag) btn.classList.add('active');
+            });
+            if (tag === 'All') { renderProducts(medicines); return; }
+            renderProducts(medicines.filter(m =>
+                m.name.toLowerCase().includes(tag.toLowerCase()) ||
+                (m.description && m.description.toLowerCase().includes(tag.toLowerCase()))
+            ));
+        }
+
+        document.getElementById('search-med')?.addEventListener('input', filterMedicines);
+
+        function renderProducts(list) {
+            const c = document.getElementById('product-container');
+            if (!list.length) { c.innerHTML = '<p style="grid-column:1/-1;text-align:center;padding:48px;">No medicines found.</p>'; return; }
+            c.innerHTML = '';
+            const emojis = ['💊', '💉', '💊', '🫁', '💊', '🐟', '💊', '🌡️'];
+            list.forEach((m, i) => {
+                let sc, st, dis = '';
+                if (m.stock > 10) { sc = 'in-stock'; st = 'IN STOCK'; }
+                else if (m.stock > 0) { sc = 'low-stock'; st = `LOW STOCK (${m.stock} LEFT)`; }
+                else { sc = 'out-of-stock'; st = 'OUT OF STOCK'; dis = 'disabled'; }
+
+                const bc = m.stock > 10 ? 'badge-success' : m.stock > 0 ? 'badge-warning' : 'badge-danger';
+                const bgImage = m.imageUrl ? `style="background-image:url('${m.imageUrl}');background-size:cover;background-position:center;"` : '';
+                const fallbackContent = m.imageUrl ? '' : emojis[i % emojis.length];
+                const controlled = requiresPrescription(m);
+                const rxBadge = controlled ? `<span class="rx-badge rx-tag">🔒 Rx Required</span>` : '';
+                const btnOnClick = controlled ? `handleCartClick(${m.id})` : `addToCart(${m.id})`;
+
+                c.innerHTML += `
+                <div class="product-card animate-slide-up">
+                    <div class="product-img" ${bgImage} style="position:relative;">
+                        ${fallbackContent}
+                        <span class="badge ${bc} stock-tag">${st}</span>
+                        ${rxBadge}
+                    </div>
+                    <div class="product-body">
+                        <h4>${m.name}</h4>
+                        ${controlled ? `<div style="margin-bottom:6px;"><span class="rx-badge">🔒 Prescription Required</span></div>` : ''}
+                        <div class="sub">${m.description || ''}</div>
+                        <div class="stock-indicator ${sc}">${st}</div>
+                        <div class="product-footer">
+                            <span class="product-price">$${m.price.toFixed(2)}</span>
+                            <button class="add-cart-btn" onclick="${btnOnClick}" ${dis} aria-label="${controlled ? 'Request prescription' : 'Add to cart'}">${controlled ? '📋' : '🛒'}</button>
+                        </div>
+                    </div>
+                </div>`;
+            });
+        }
+
+        // Called when clicking cart button — checks if controlled
+        async function handleCartClick(id) {
+            const user = JSON.parse(localStorage.getItem('user') || 'null');
+            if (!user) { window.location.href = 'login.html'; return; }
+
+            const med = medicines.find(m => m.id === id);
+            if (!med) return;
+
+            if (!requiresPrescription(med)) { addToCart(id); return; }
+
+            // Check if already approved
+            try {
+                const res = await fetch(`/api/prescription-requests/user/${user.id}/medicine/${id}/approved`);
+                const approved = await res.json();
+                openRxModal(med, approved);
+            } catch (e) {
+                openRxModal(med, false);
+            }
+        }
+
+        function openRxModal(med, alreadyApproved) {
+            currentRxMedicineId = med.id;
+            document.getElementById('rx-medicine-name').textContent = med.name;
+            document.getElementById('rx-patient-note').value = '';
+            document.getElementById('rx-image-url').value = '';
+            document.getElementById('rx-file-input').value = '';
+            document.getElementById('upload-status').style.display = 'none';
+            document.getElementById('rx-status-msg').style.display = 'none';
+            const area = document.getElementById('file-upload-area');
+            area.style.borderColor = 'var(--outline-variant)';
+            area.style.background = 'var(--surface-container-low)';
+
+            document.getElementById('rx-form-area').style.display = alreadyApproved ? 'none' : 'block';
+            document.getElementById('rx-already-approved').style.display = alreadyApproved ? 'block' : 'none';
+
+            document.getElementById('rx-modal-overlay').classList.add('open');
+        }
+
+        function closeRxModal() {
+            document.getElementById('rx-modal-overlay').classList.remove('open');
+        }
+
+        function handleRxDragOver(e) {
+            e.preventDefault(); e.stopPropagation();
+            const a = document.getElementById('file-upload-area');
+            a.style.borderColor = 'var(--primary)';
+            a.style.background = 'rgba(79,219,200,0.05)';
+        }
+        function handleRxDragLeave(e) {
+            e.preventDefault(); e.stopPropagation();
+            const a = document.getElementById('file-upload-area');
+            a.style.borderColor = 'var(--outline-variant)';
+            a.style.background = 'var(--surface-container-low)';
+        }
+        function handleRxDrop(e) {
+            e.preventDefault(); e.stopPropagation();
+            const a = document.getElementById('file-upload-area');
+            a.style.borderColor = 'var(--outline-variant)';
+            a.style.background = 'var(--surface-container-low)';
+            if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                uploadRxFile(e.dataTransfer.files[0]);
+            }
+        }
+        function handleRxFileSelect(e) {
+            if (e.target.files && e.target.files.length > 0) uploadRxFile(e.target.files[0]);
+        }
+        async function uploadRxFile(file) {
+            const statusDiv = document.getElementById('upload-status');
+            const icon = document.getElementById('upload-status-icon');
+            const text = document.getElementById('upload-status-text');
+            const removeBtn = document.getElementById('upload-remove-btn');
+            statusDiv.style.display = 'flex';
+            icon.textContent = '🔄'; text.textContent = 'Uploading ' + file.name + '...'; text.style.color = 'var(--on-surface)'; removeBtn.style.display = 'none';
+            const fd = new FormData(); fd.append('file', file);
+            try {
+                const res = await fetch('/api/upload', { method: 'POST', body: fd });
+                const data = await res.json();
+                if (res.ok && data.url) {
+                    icon.textContent = '✅'; text.textContent = file.name; text.style.color = 'var(--success)'; removeBtn.style.display = 'block';
+                    document.getElementById('rx-image-url').value = data.url;
+                } else {
+                    icon.textContent = '❌'; text.textContent = 'Upload failed.'; text.style.color = 'var(--danger)';
+                    setTimeout(() => { statusDiv.style.display = 'none'; }, 3000);
+                }
+            } catch { icon.textContent = '❌'; text.textContent = 'Network error.'; text.style.color = 'var(--danger)'; setTimeout(() => { statusDiv.style.display = 'none'; }, 3000); }
+        }
+        function removeRxUpload() {
+            document.getElementById('rx-image-url').value = '';
+            document.getElementById('rx-file-input').value = '';
+            document.getElementById('upload-status').style.display = 'none';
+        }
+
+        async function submitRxRequest() {
+            const user = JSON.parse(localStorage.getItem('user') || 'null');
+            if (!user) { window.location.href = 'login.html'; return; }
+
+            const note = document.getElementById('rx-patient-note').value.trim();
+            const imageUrl = document.getElementById('rx-image-url').value.trim();
+            const msgEl = document.getElementById('rx-status-msg');
+            const btn = document.getElementById('rx-submit-btn');
+
+            if (!note && !imageUrl) {
+                msgEl.style.display = 'block';
+                msgEl.style.background = 'rgba(239,68,68,0.1)';
+                msgEl.style.color = '#ef4444';
+                msgEl.textContent = 'Please provide a prescription note or image URL.';
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = 'Submitting...';
+
+            try {
+                const res = await fetch('/api/prescription-requests', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        userId: user.id,
+                        medicineId: currentRxMedicineId,
+                        patientNote: note,
+                        prescriptionImageUrl: imageUrl
+                    })
+                });
+
+                if (res.ok) {
+                    msgEl.style.display = 'block';
+                    msgEl.style.background = 'rgba(16,185,129,0.1)';
+                    msgEl.style.color = 'var(--success)';
+                    msgEl.textContent = '✅ Request submitted! Admin will review it and you will be notified once approved.';
+                    btn.textContent = '✓ Submitted';
+                } else {
+                    const err = await res.text();
+                    msgEl.style.display = 'block';
+                    msgEl.style.background = 'rgba(239,68,68,0.1)';
+                    msgEl.style.color = '#ef4444';
+                    msgEl.textContent = err || 'Submission failed. Please try again.';
+                    btn.disabled = false;
+                    btn.textContent = '📋 Submit Prescription Request';
+                }
+            } catch (e) {
+                msgEl.style.display = 'block';
+                msgEl.style.background = 'rgba(239,68,68,0.1)';
+                msgEl.style.color = '#ef4444';
+                msgEl.textContent = 'Network error. Please try again.';
+                btn.disabled = false;
+                btn.textContent = '📋 Submit Prescription Request';
+            }
+        }
+
+        function addToCart(id, force = false) {
+            const med = medicines.find(m => m.id === id);
+            if (!med || med.stock <= 0) return;
+            if (requiresPrescription(med) && !force) { handleCartClick(id); return; }
+            const existing = cart.find(c => c.medicineId === id);
+            if (existing) {
+                if (existing.quantity >= med.stock) return;
+                existing.quantity++;
+            } else {
+                cart.push({ medicineId: id, name: med.name, price: med.price, quantity: 1 });
+            }
+            updateCartUI();
+        }
+
+        function removeFromCart(id) {
+            cart = cart.filter(c => c.medicineId !== id);
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            const totalItems = cart.reduce((s, c) => s + c.quantity, 0);
+            const totalPrice = cart.reduce((s, c) => s + c.price * c.quantity, 0);
+            document.getElementById('cart-count').textContent = totalItems;
+            document.getElementById('cart-total-nav').textContent = totalPrice.toFixed(2);
+            document.getElementById('cart-total-bottom').textContent = '$' + totalPrice.toFixed(2);
+            document.getElementById('checkout-btn').disabled = cart.length === 0;
+
+            const list = document.getElementById('cart-items-list');
+            if (cart.length === 0) {
+                list.innerHTML = '<div class="empty-cart"><div class="icon">🛒</div><p>Your cart is empty</p></div>';
+                return;
+            }
+            list.innerHTML = '';
+            cart.forEach(item => {
+                list.innerHTML += `
+                <div class="cart-item">
+                    <div class="cart-item-info">
+                        <strong>${item.name}</strong>
+                        <div class="cart-qty-controls">
+                            <button onclick="changeQuantity(${item.medicineId}, -1)">-</button>
+                            <span>${item.quantity}</span>
+                            <button onclick="changeQuantity(${item.medicineId}, 1)">+</button>
+                        </div>
+                    </div>
+                    <div style="display:flex;flex-direction:column;align-items:flex-end;">
+                        <span class="cart-item-price">$${(item.price * item.quantity).toFixed(2)}</span>
+                        <button class="cart-item-remove" style="margin-top:8px;font-size:12px;" onclick="removeFromCart(${item.medicineId})">Remove</button>
+                    </div>
+                </div>`;
+            });
+        }
+
+        function toggleCart() {
+            document.getElementById('cart-overlay').classList.toggle('open');
+            document.getElementById('cart-drawer').classList.toggle('open');
+        }
+
+        function changeQuantity(id, delta) {
+            const med = medicines.find(m => m.id === id);
+            const item = cart.find(c => c.medicineId === id);
+            if (!item) return;
+            item.quantity += delta;
+            if (item.quantity <= 0) { removeFromCart(id); }
+            else if (item.quantity > med.stock) { item.quantity = med.stock; alert('Maximum stock reached.'); }
+            updateCartUI();
+        }
+
+        async function checkout() {
+            const user = JSON.parse(localStorage.getItem('user') || 'null');
+            if (!user) { window.location.href = 'login.html'; return; }
+            toggleCart();
+            document.getElementById('checkout-modal').classList.add('open');
+            document.getElementById('checkout-step-1').style.display = 'block';
+            document.getElementById('checkout-step-2').style.display = 'none';
+            document.getElementById('checkout-final-msg').style.display = 'none';
+            document.getElementById('confirm-btn').disabled = false;
+        }
+
+        function closeCheckout() { document.getElementById('checkout-modal').classList.remove('open'); }
+
+        function nextCheckoutStep(step) {
+            if (step === 2) {
+                const addr = document.getElementById('delivery-address').value;
+                if (!addr.trim()) return alert('Please enter a valid delivery address.');
+                document.getElementById('checkout-step-1').style.display = 'none';
+                document.getElementById('checkout-step-2').style.display = 'block';
+            }
+        }
+
+        function togglePaymentFields() {
+            const method = document.querySelector('input[name="pay-method"]:checked').value;
+            const cardFields = document.getElementById('card-details');
+            const confirmBtn = document.getElementById('confirm-btn');
+            if (method === 'CARD') { cardFields.style.display = 'block'; confirmBtn.textContent = 'Pay & Place Order'; }
+            else { cardFields.style.display = 'none'; confirmBtn.textContent = 'Confirm Cash on Delivery'; }
+        }
+
+        async function confirmOrder() {
+            const method = document.querySelector('input[name="pay-method"]:checked').value;
+            const msg = document.getElementById('checkout-final-msg');
+            const btn = document.getElementById('confirm-btn');
+            btn.disabled = true;
+            msg.style.display = 'block';
+            if (method === 'CARD') {
+                msg.style.color = 'var(--success)';
+                msg.textContent = 'Payment Successful! Authorizing...';
+                await new Promise(r => setTimeout(r, 1500));
+            }
+            msg.style.color = 'var(--primary)';
+            msg.textContent = 'Order confirmed. Sending for delivery...';
+            try {
+                const user = JSON.parse(localStorage.getItem('user'));
+                const res = await fetch('/api/orders', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        userId: user.id,
+                        deliveryAddress: document.getElementById('delivery-address').value,
+                        items: cart.map(c => ({ medicineId: c.medicineId, quantity: c.quantity }))
+                    })
+                });
+                if (res.ok) {
+                    cart = []; updateCartUI();
+                    setTimeout(() => window.location.href = 'orders.html', 1500);
+                } else {
+                    const errText = await res.text();
+                    msg.textContent = '❌ Server Error: ' + errText;
+                    msg.style.color = 'var(--danger)';
+                    btn.disabled = false;
+                }
+            } catch (e) {
+                msg.textContent = '❌ Network Error. Please try again.';
+                msg.style.color = 'var(--danger)';
+                btn.disabled = false;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadMedicines);
+    </script>
+</body>
+
+</html>

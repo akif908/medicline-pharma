@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doctors — Medicline Pharma</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .page-header {
+            padding: 48px 0 24px;
+        }
+
+        .page-header h1 {
+            font-size: 36px;
+            margin-bottom: 8px;
+        }
+
+        .search-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 32px;
+            max-width: 640px;
+        }
+
+        .doc-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+            margin-top: 32px;
+        }
+
+        .doc-card {
+            background: var(--surface-container);
+            border: 1px solid var(--outline-variant);
+            border-radius: var(--rounded-md);
+            overflow: hidden;
+            transition: all var(--transition-smooth);
+        }
+
+        .doc-card:hover {
+            transform: translateY(-6px);
+            border-color: rgba(79, 219, 200, 0.3);
+            box-shadow: var(--glow-teal);
+        }
+
+        .doc-img {
+            height: 160px;
+            background: linear-gradient(180deg, var(--surface-container-low), var(--surface-container));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+        }
+
+        .doc-info {
+            padding: 20px;
+        }
+
+        .doc-name {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 2px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .doc-name .verified {
+            color: var(--primary);
+            font-size: 14px;
+        }
+
+        .doc-spec {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 8px;
+        }
+
+        .doc-meta {
+            font-size: 13px;
+            color: var(--on-surface-variant);
+            margin-bottom: 4px;
+        }
+
+        .doc-bio {
+            font-size: 13px;
+            color: var(--on-surface-variant);
+            margin: 8px 0;
+            line-height: 1.5;
+        }
+
+        .book-btn {
+            width: 100%;
+            margin-top: 12px;
+            padding: 10px;
+            border-radius: var(--rounded);
+            border: 1px solid rgba(79, 219, 200, 0.3);
+            background: rgba(79, 219, 200, 0.08);
+            color: var(--primary);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .book-btn:hover {
+            background: var(--primary);
+            color: var(--on-primary);
+            box-shadow: var(--glow-teal);
+        }
+
+        .book-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Booking Modal */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 200;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.open {
+            display: flex;
+        }
+
+        .modal-card {
+            background: var(--surface-container);
+            border: 1px solid var(--outline-variant);
+            border-radius: var(--rounded-lg);
+            padding: 32px;
+            max-width: 440px;
+            width: 100%;
+        }
+
+        .modal-card h3 {
+            font-size: 20px;
+            margin-bottom: 8px;
+        }
+
+        .modal-card .close-modal {
+            float: right;
+            background: none;
+            border: none;
+            color: var(--on-surface-variant);
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .slot-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin: 16px 0;
+        }
+
+        .slot-btn {
+            padding: 8px;
+            border-radius: var(--rounded);
+            border: 1px solid var(--outline-variant);
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--on-surface);
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .slot-btn:hover {
+            background: rgba(79, 219, 200, 0.1);
+            border-color: var(--primary);
+        }
+
+        .slot-btn.active {
+            background: var(--primary);
+            color: #000;
+            font-weight: 600;
+            border-color: var(--primary);
+        }
+
+        .slot-date-label {
+            font-size: 13px;
+            font-weight: 600;
+            margin-top: 16px;
+            margin-bottom: 8px;
+            color: var(--on-surface-variant);
+        }
+
+        /* ---- Enhanced Symptom Checker ---- */
+        .symptom-section {
+            background: var(--surface-container);
+            border: 1px solid var(--outline-variant);
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 32px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .symptom-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--tertiary, #14b8a6), transparent);
+        }
+
+        .symptom-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+
+        .symptom-header .sh-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: rgba(79, 219, 200, 0.1);
+            border: 1px solid rgba(79, 219, 200, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .symptom-header .sh-text h2 {
+            font-size: 20px;
+            font-weight: 700;
+            margin: 0 0 4px;
+            color: var(--on-surface);
+        }
+
+        .symptom-header .sh-text p {
+            font-size: 13px;
+            color: var(--on-surface-variant);
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        .symptom-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+
+        .symptom-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            border: 1px solid var(--outline-variant);
+            background: rgba(255, 255, 255, 0.02);
+            color: var(--on-surface-variant);
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            user-select: none;
+        }
+
+        .symptom-tag:hover {
+            border-color: rgba(79, 219, 200, 0.3);
+            color: var(--on-surface);
+            background: rgba(79, 219, 200, 0.05);
+        }
+
+        .symptom-tag.selected {
+            background: rgba(79, 219, 200, 0.15);
+            border-color: var(--primary);
+            color: var(--primary);
+            font-weight: 600;
+            box-shadow: 0 0 12px rgba(79, 219, 200, 0.1);
+        }
+
+        .symptom-tag .tag-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--on-surface-variant);
+            transition: background 0.25s;
+        }
+
+        .symptom-tag.selected .tag-dot {
+            background: var(--primary);
+        }
+
+        .symptom-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 0;
+        }
+
+        .btn-recommend {
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            border: none;
+            background: var(--primary);
+            color: #000;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-recommend:hover {
+            box-shadow: var(--glow-teal);
+            transform: translateY(-1px);
+        }
+
+        .btn-clear {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            border: 1px solid var(--outline-variant);
+            background: transparent;
+            color: var(--on-surface-variant);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-clear:hover {
+            border-color: rgba(255, 255, 255, 0.15);
+            color: var(--on-surface);
+        }
+
+        .symptom-count {
+            margin-left: auto;
+            font-size: 12px;
+            color: var(--on-surface-variant);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .symptom-count .count-badge {
+            background: rgba(79, 219, 200, 0.15);
+            color: var(--primary);
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            min-width: 22px;
+            text-align: center;
+        }
+
+        /* Recommendation Result */
+        .recommendation-result {
+            margin-top: 20px;
+            padding: 16px 20px;
+            background: rgba(79, 219, 200, 0.06);
+            border: 1px solid rgba(79, 219, 200, 0.15);
+            border-radius: 12px;
+            display: none;
+            animation: fadeSlideUp 0.3s ease;
+        }
+
+        .recommendation-result.visible {
+            display: block;
+        }
+
+        .recommendation-result .rr-inner {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .recommendation-result .rr-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: rgba(79, 219, 200, 0.12);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .recommendation-result .rr-text h4 {
+            margin: 0 0 2px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .recommendation-result .rr-text p {
+            margin: 0;
+            font-size: 12px;
+            color: var(--on-surface-variant);
+        }
+
+        @keyframes fadeSlideUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .doc-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 640px) {
+            .symptom-header {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .symptom-actions {
+                flex-wrap: wrap;
+            }
+
+            .symptom-count {
+                margin-left: 0;
+                margin-top: 4px;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <a href="index.html" class="brand">Medicline Pharma</a>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="doctors.html" class="active">Doctors</a>
+            <a href="pharmacy.html">Pharmacy</a>
+            <a href="orders.html">Orders</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>Find Your Specialist</h1>
+            <p>Verified professionals across 20+ clinical departments.</p>
+        </div>
+        <div class="symptom-section">
+            <div class="symptom-header">
+                <div class="sh-icon">🩺</div>
+                <div class="sh-text">
+                    <h2>Symptom-Based Doctor Recommendation</h2>
+                    <p>Not sure who to see? Select your symptoms and our system will recommend the right specialist.</p>
+                </div>
+            </div>
+
+            <div class="symptom-tags" id="symptoms-list">
+                <span class="symptom-tag" data-symptom="Fever" onclick="toggleSymptom(this)"><span class="tag-dot"></span>Fever</span>
+                <span class="symptom-tag" data-symptom="Headache" onclick="toggleSymptom(this)"><span class="tag-dot"></span>Headache</span>
+                <span class="symptom-tag" data-symptom="Cough" onclick="toggleSymptom(this)"><span class="tag-dot"></span>Cough</span>
+                <span class="symptom-tag" data-symptom="Skin Rash" onclick="toggleSymptom(this)"><span class="tag-dot"></span>Skin Rash</span>
+                <span class="symptom-tag" data-symptom="Acne" onclick="toggleSymptom(this)"><span class="tag-dot"></span>Acne</span>
+                <span class="symptom-tag" data-symptom="Chest Pain" onclick="toggleSymptom(this)"><span class="tag-dot"></span>Chest Pain</span>
+                <span class="symptom-tag" data-symptom="Palpitations" onclick="toggleSymptom(this)"><span class="tag-dot"></span>Palpitations</span>
+                <span class="symptom-tag" data-symptom="Seizures" onclick="toggleSymptom(this)"><span class="tag-dot"></span>Seizures</span>
+                <span class="symptom-tag" data-symptom="Anxiety" onclick="toggleSymptom(this)"><span class="tag-dot"></span>Anxiety</span>
+                <span class="symptom-tag" data-symptom="Stress" onclick="toggleSymptom(this)"><span class="tag-dot"></span>Stress</span>
+            </div>
+
+            <div class="symptom-actions">
+                <button class="btn-recommend" onclick="recommendDoctor()">Find Recommendation</button>
+                <button class="btn-clear" onclick="clearSymptoms()">Clear</button>
+                <div class="symptom-count"><span class="count-badge" id="symptom-count">0</span> selected</div>
+            </div>
+
+            <div class="recommendation-result" id="recommendation-result">
+                <div class="rr-inner">
+                    <div class="rr-icon">⭐</div>
+                    <div class="rr-text">
+                        <h4>Recommended: <span id="recommended-spec"></span></h4>
+                        <p>Doctors list has been filtered to match this specialization.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="search-row" style="max-width: 640px; margin-bottom: 32px;">
+            <input type="text" id="search-doc" class="search-pill"
+                placeholder="Or search manually by name or specialization (e.g. Cardiology)..." style="width: 100%;">
+        </div>
+        <div class="doc-grid stagger" id="doc-container">
+            <p style="grid-column:1/-1;text-align:center;padding:48px;color:var(--on-surface-variant);">Loading
+                doctors...</p>
+        </div>
+    </div>
+
+    <!-- Booking Modal -->
+    <div class="modal-overlay" id="booking-modal">
+        <div class="modal-card">
+            <button class="close-modal" onclick="closeBooking()">✕</button>
+            <h3 id="modal-doc-name">Book Consultation</h3>
+            <p style="margin-bottom:12px; font-size:14px;" id="modal-doc-spec"></p>
+
+            <div id="slots-container" style="max-height: 200px; overflow-y: auto; margin-bottom: 16px;">
+                <p style="color:var(--on-surface-variant); font-size:13px;">Loading available slots...</p>
+            </div>
+
+            <label>Describe your symptoms or reason</label>
+            <textarea id="booking-reason" rows="3"
+                placeholder="e.g. I've been experiencing headaches for the past week..."></textarea>
+            <div id="booking-msg" style="font-size:13px;margin-bottom:12px;display:none;"></div>
+            <button class="btn btn-primary w-full" id="booking-submit" onclick="submitBooking()" disabled>Request
+                Appointment</button>
+        </div>
+    </div>
+
+    <footer class="footer mt-5">
+        <div class="container flex justify-between items-center">
+            <span class="brand" style="font-size:14px;">Medicline Pharma</span>
+            <span>© 2024 Medicline Pharma Platform.</span>
+        </div>
+    </footer>
+
+    <script>
+        let selectedDoctorId = null;
+        let selectedSlotId = null;
+        let allDoctors = [];
+
+        async function loadDoctors() {
+            try {
+                const res = await fetch('/api/doctors');
+                allDoctors = await res.json();
+                // Fetch average ratings for all doctors in parallel
+                const ratings = await Promise.all(allDoctors.map(d =>
+                    fetch(`/api/reviews/doctor/${d.id}/average`).then(r => r.json()).catch(() => ({ average: 0 }))
+                ));
+                allDoctors.forEach((d, i) => d.avgRating = ratings[i]?.average || 0);
+                renderDoctors(allDoctors);
+            } catch (e) { console.error(e); }
+        }
+
+        function renderStars(rating) {
+            const full = Math.round(rating);
+            return '★'.repeat(full) + '☆'.repeat(5 - full);
+        }
+
+        function renderDoctors(list) {
+            const c = document.getElementById('doc-container');
+            if (!list.length) { c.innerHTML = '<p style="grid-column:1/-1;text-align:center;padding:48px;color:var(--on-surface-variant);">No doctors found matching your search.</p>'; return; }
+            c.innerHTML = '';
+            const emojis = ['👨‍⚕️', '👩‍⚕️', '👨‍⚕️', '👩‍⚕️'];
+            list.forEach((d, i) => {
+                const starDisplay = d.avgRating > 0
+                    ? `<span style="color: #f59e0b; font-size: 13px; letter-spacing: 1px;">${renderStars(d.avgRating)}</span> <span style="font-size: 12px; color: var(--on-surface-variant);">${d.avgRating.toFixed(1)}</span>`
+                    : '<span style="font-size: 12px; color: var(--on-surface-variant);">No ratings yet</span>';
+                c.innerHTML += `
+                <div class="doc-card animate-slide-up">
+                    <div class="doc-img">${emojis[i % emojis.length]}</div>
+                    <div class="doc-info">
+                        <div class="doc-name">${d.user.name} <span class="verified">✓</span></div>
+                        <div class="doc-spec" style="display:inline-block; background:rgba(79,219,200,0.15); padding:2px 8px; border-radius:12px; font-size:11px; margin-bottom:8px;">Best in: ${d.specialization || 'General Medicine'}</div>
+                        <div class="doc-meta">💼 ${d.experience || 0} Years Experience</div>
+                        <div class="doc-meta" style="margin-top: 4px;">${starDisplay}</div>
+                        <div class="doc-bio">${d.bio || 'No bio available yet.'}</div>
+                        <button class="book-btn" onclick="openBooking(${d.id}, '${d.user.name}', '${d.specialization || 'General'}')">Book Consultation</button>
+                    </div>
+                </div>`;
+            });
+        }
+
+        function filterDoctors() {
+            const query = document.getElementById('search-doc').value.toLowerCase();
+            const filtered = allDoctors.filter(d =>
+                d.user.name.toLowerCase().includes(query) ||
+                (d.specialization && d.specialization.toLowerCase().includes(query))
+            );
+            renderDoctors(filtered);
+        }
+
+        document.getElementById('search-doc')?.addEventListener('input', () => {
+            document.getElementById('recommendation-result').classList.remove('visible');
+            filterDoctors();
+        });
+
+        function toggleSymptom(tag) {
+            tag.classList.toggle('selected');
+            updateSymptomCount();
+        }
+
+        function updateSymptomCount() {
+            const count = document.querySelectorAll('.symptom-tag.selected').length;
+            document.getElementById('symptom-count').textContent = count;
+        }
+
+        function recommendDoctor() {
+            const tags = document.querySelectorAll('.symptom-tag.selected');
+            const symptoms = Array.from(tags).map(t => t.dataset.symptom);
+
+            if (symptoms.length === 0) {
+                alert("Please select at least one symptom.");
+                return;
+            }
+
+            let recommended = 'General Medicine';
+
+            if (symptoms.includes('Chest Pain') || symptoms.includes('Palpitations')) {
+                recommended = 'Cardiology';
+            } else if (symptoms.includes('Anxiety') || symptoms.includes('Stress')) {
+                recommended = 'Psychiatry';
+            } else if (symptoms.includes('Skin Rash') || symptoms.includes('Acne')) {
+                recommended = 'Dermatology';
+            } else if (symptoms.includes('Seizures')) {
+                recommended = 'Neurology';
+            }
+
+            document.getElementById('recommended-spec').textContent = recommended;
+            document.getElementById('recommendation-result').classList.add('visible');
+
+            document.getElementById('search-doc').value = recommended;
+            filterDoctors();
+
+            document.getElementById('doc-container').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function clearSymptoms() {
+            document.querySelectorAll('.symptom-tag.selected').forEach(t => t.classList.remove('selected'));
+            updateSymptomCount();
+            document.getElementById('recommendation-result').classList.remove('visible');
+            document.getElementById('search-doc').value = '';
+            filterDoctors();
+        }
+
+        async function openBooking(doctorId, name, spec) {
+            const user = JSON.parse(localStorage.getItem('user') || 'null');
+            if (!user) { window.location.href = 'login.html'; return; }
+
+            selectedDoctorId = doctorId;
+            selectedSlotId = null;
+            document.getElementById('booking-submit').disabled = true;
+
+            document.getElementById('modal-doc-name').textContent = 'Book with ' + name;
+            document.getElementById('modal-doc-spec').textContent = spec;
+            document.getElementById('booking-msg').style.display = 'none';
+            document.getElementById('booking-reason').value = '';
+            document.getElementById('booking-modal').classList.add('open');
+
+            await fetchSlots(doctorId);
+        }
+
+        async function fetchSlots(doctorId) {
+            const container = document.getElementById('slots-container');
+            container.innerHTML = '<p style="color:var(--on-surface-variant); font-size:13px;">Loading available slots...</p>';
+
+            try {
+                // Fetch upcoming slots for this doctor
+                const res = await fetch(`/api/slots/upcoming/${doctorId}`);
+                const slots = await res.json();
+
+                if (!slots.length) {
+                    container.innerHTML = '<p style="color:var(--danger); font-size:13px; padding: 12px 0;">No available slots for this doctor right now. Please check back later.</p>';
+                    return;
+                }
+
+                // Group by date
+                const grouped = {};
+                slots.forEach(s => {
+                    if (!grouped[s.date]) grouped[s.date] = [];
+                    grouped[s.date].push(s);
+                });
+
+                let html = '';
+                for (const [dateStr, dailySlots] of Object.entries(grouped)) {
+                    // Format date nicely
+                    const dateObj = new Date(dateStr);
+                    const formattedDate = dateObj.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+
+                    html += `<div class="slot-date-label">${formattedDate}</div><div class="slot-grid">`;
+                    dailySlots.forEach(s => {
+                        const start = s.startTime.substring(0, 5); // "09:00"
+                        html += `<button class="slot-btn" onclick="selectSlot(${s.id}, this)">${start}</button>`;
+                    });
+                    html += `</div>`;
+                }
+
+                container.innerHTML = html;
+
+            } catch (e) {
+                container.innerHTML = '<p style="color:var(--danger); font-size:13px;">Failed to load slots.</p>';
+            }
+        }
+
+        function selectSlot(slotId, btnElement) {
+            selectedSlotId = slotId;
+            document.querySelectorAll('.slot-btn').forEach(b => b.classList.remove('active'));
+            btnElement.classList.add('active');
+            document.getElementById('booking-submit').disabled = false;
+        }
+
+        function closeBooking() {
+            document.getElementById('booking-modal').classList.remove('open');
+        }
+
+        async function submitBooking() {
+            const user = JSON.parse(localStorage.getItem('user') || 'null');
+            if (!user || !selectedSlotId) return;
+
+            const reason = document.getElementById('booking-reason').value.trim();
+            if (!reason) {
+                alert("Please provide a reason for the consultation.");
+                return;
+            }
+
+            const msg = document.getElementById('booking-msg');
+            const btn = document.getElementById('booking-submit');
+            btn.disabled = true;
+            btn.textContent = 'Requesting...';
+
+            try {
+                const res = await fetch('/api/appointments', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        patientId: user.id,
+                        doctorSlotId: selectedSlotId,
+                        reason: reason
+                    })
+                });
+
+                if (res.ok) {
+                    msg.textContent = '✅ Appointment requested! Waiting for doctor approval...';
+                    msg.style.color = 'var(--success)';
+                    msg.style.display = 'block';
+                    setTimeout(() => window.location.href = 'dashboard.html', 2000);
+                } else {
+                    msg.textContent = '❌ Failed to request appointment. Slot might be taken.';
+                    msg.style.color = 'var(--danger)';
+                    msg.style.display = 'block';
+                    btn.disabled = false;
+                    btn.textContent = 'Request Appointment';
+                }
+            } catch (e) {
+                msg.textContent = '❌ Network error.';
+                msg.style.color = 'var(--danger)';
+                msg.style.display = 'block';
+                btn.disabled = false;
+                btn.textContent = 'Request Appointment';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadDoctors);
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,1655 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Console — Medicline Pharma</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            overflow: hidden;
+        }
+
+        .dashboard-layout {
+            display: grid;
+            grid-template-columns: 260px 1fr;
+            height: calc(100vh - 64px);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: var(--surface-container);
+            border-right: 1px solid var(--outline-variant);
+            padding: 24px 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-profile {
+            padding: 0 20px 24px;
+            border-bottom: 1px solid var(--outline-variant);
+            margin-bottom: 16px;
+        }
+
+        .sidebar-profile .avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: var(--on-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+
+        .sidebar-profile .name {
+            font-weight: 600;
+            font-size: 15px;
+            color: var(--primary);
+        }
+
+        .sidebar-profile .role {
+            font-size: 12px;
+            color: var(--on-surface-variant);
+            margin-top: 2px;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 20px;
+            color: var(--on-surface-variant);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all var(--transition-fast);
+            border-left: 3px solid transparent;
+        }
+
+        .sidebar-nav a:hover {
+            background: rgba(79, 219, 200, 0.05);
+            color: var(--on-surface);
+        }
+
+        .sidebar-nav a.active {
+            color: var(--primary);
+            background: rgba(79, 219, 200, 0.08);
+            border-left-color: var(--primary);
+        }
+
+        .sidebar-nav a .icon {
+            font-size: 18px;
+            width: 24px;
+            text-align: center;
+        }
+
+        .logout-btn {
+            margin: 16px 20px 0;
+            padding: 10px;
+            border-radius: var(--rounded);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            background: rgba(239, 68, 68, 0.08);
+            color: var(--danger);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            text-align: center;
+        }
+
+        .logout-btn:hover {
+            background: rgba(239, 68, 68, 0.2);
+        }
+
+        /* Main Area */
+        .main-area {
+            padding: 32px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .main-area.active {
+            display: block;
+        }
+
+        .header-title {
+            font-size: 24px;
+            margin-bottom: 24px;
+            color: var(--on-surface);
+        }
+
+        /* Tables */
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--surface-container);
+            border: 1px solid var(--outline-variant);
+            border-radius: var(--rounded-md);
+            overflow: hidden;
+        }
+
+        .admin-table th,
+        .admin-table td {
+            padding: 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--outline-variant);
+        }
+
+        .admin-table th {
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--on-surface-variant);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            background: var(--surface-container-high);
+        }
+
+        .admin-table td {
+            font-size: 14px;
+            color: var(--on-surface);
+        }
+
+        .admin-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .action-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--outline-variant);
+            color: var(--on-surface);
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+            margin-right: 8px;
+        }
+
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .action-btn.danger {
+            color: #ef4444;
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+
+        .action-btn.danger:hover {
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        /* Consultations View */
+        .consultation-grid {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 24px;
+            height: calc(100vh - 160px);
+        }
+
+        .consult-list {
+            background: var(--surface-container);
+            border: 1px solid var(--outline-variant);
+            border-radius: var(--rounded-md);
+            overflow-y: auto;
+        }
+
+        .consult-item {
+            padding: 16px;
+            border-bottom: 1px solid var(--outline-variant);
+            cursor: pointer;
+        }
+
+        .consult-item:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .consult-item.active {
+            background: rgba(79, 219, 200, 0.1);
+            border-left: 4px solid var(--primary);
+            padding-left: 12px;
+        }
+
+        .consult-title {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .consult-sub {
+            font-size: 12px;
+            color: var(--on-surface-variant);
+        }
+
+        .chat-view {
+            background: var(--surface-container);
+            border: 1px solid var(--outline-variant);
+            border-radius: var(--rounded-md);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--outline-variant);
+            background: var(--surface-container-high);
+            font-weight: 600;
+        }
+
+        .chat-history {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .msg-wrapper {
+            display: flex;
+            flex-direction: column;
+            max-width: 80%;
+        }
+
+        .msg-bubble {
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            line-height: 1.5;
+            background: var(--surface-container-high);
+            border: 1px solid var(--outline-variant);
+        }
+
+        .msg-meta {
+            font-size: 11px;
+            margin-top: 6px;
+            color: var(--outline);
+        }
+
+        .msg-sender {
+            font-weight: 600;
+            font-size: 11px;
+            color: var(--primary);
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Catalog Layout */
+        .category-block {
+            margin-bottom: 32px;
+        }
+
+        .category-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--primary);
+            border-bottom: 1px solid var(--outline-variant);
+            padding-bottom: 8px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+        }
+
+        .medicine-card {
+            background: var(--surface-container);
+            border: 1px solid var(--outline-variant);
+            border-radius: var(--rounded);
+            padding: 16px;
+            display: flex;
+            gap: 16px;
+            position: relative;
+            transition: all var(--transition-fast);
+        }
+
+        .medicine-card:hover {
+            border-color: rgba(79, 219, 200, 0.3);
+            box-shadow: var(--glow-teal);
+            transform: translateY(-2px);
+        }
+
+        .medicine-card img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: var(--rounded-sm);
+            border: 1px solid var(--outline-variant);
+        }
+
+        .medicine-details {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .medicine-name {
+            font-weight: 600;
+            font-size: 15px;
+            color: var(--on-surface);
+        }
+
+        .medicine-desc {
+            font-size: 12px;
+            color: var(--on-surface-variant);
+            margin-top: 4px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            line-height: 1.4;
+        }
+
+        .medicine-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 8px;
+        }
+
+        .medicine-price {
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 14px;
+        }
+
+        .medicine-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            justify-content: center;
+        }
+
+        /* Stats Dashboard layout */
+        .stats-period-card {
+            background: var(--surface-container);
+            border: 1px solid var(--outline-variant);
+            border-radius: var(--rounded-md);
+            padding: 20px;
+        }
+
+        .stats-period-card h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            border-bottom: 1px solid var(--outline-variant);
+            padding-bottom: 8px;
+            color: var(--primary);
+        }
+
+        .stats-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+
+        .stats-row span:first-child {
+            color: var(--on-surface-variant);
+        }
+
+        .stats-row span:last-child {
+            font-weight: 600;
+            color: var(--on-surface);
+        }
+
+        /* Modals */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        /* Status Badges */
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            font-size: 11px;
+            font-weight: 600;
+            border-radius: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .status-badge.pending {
+            background: rgba(245, 158, 11, 0.15);
+            color: #f59e0b;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .status-badge.approved {
+            background: rgba(16, 185, 129, 0.15);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .status-badge.rejected {
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        /* --- Notifications --- */
+        .notif-wrapper {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .notif-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #ff4d4d;
+            color: white;
+            font-size: 10px;
+            font-weight: 800;
+            min-width: 16px;
+            height: 16px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            border: 2px solid var(--surface-container);
+        }
+
+        .notif-panel {
+            position: absolute;
+            top: 140%;
+            right: -10px;
+            width: 320px;
+            background: var(--surface-container-high);
+            border: 1px solid var(--outline-variant);
+            border-radius: 8px;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+            display: none;
+            flex-direction: column;
+            z-index: 1000;
+            overflow: hidden;
+        }
+
+        .notif-panel.open {
+            display: flex;
+        }
+
+        .notif-header {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--outline-variant);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .notif-header h4 {
+            margin: 0;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .notif-list {
+            max-height: 320px;
+            overflow-y: auto;
+        }
+
+        .notif-item {
+            padding: 12px 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            transition: background 0.2s;
+            cursor: pointer;
+        }
+
+        .notif-item:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .notif-item.unread {
+            border-left: 3px solid var(--primary);
+            background: rgba(79, 219, 200, 0.03);
+        }
+
+        .notif-item p {
+            margin: 0 0 4px;
+            font-size: 13px;
+            line-height: 1.4;
+            color: var(--on-surface);
+        }
+
+        .notif-item span {
+            font-size: 11px;
+            color: var(--outline);
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar"
+        style="display:flex; justify-content:space-between; align-items:center; padding:0 24px; position:relative;">
+        <a href="#" class="brand">Medicline Pharma <span
+                style="font-size:12px; color:var(--primary); font-weight:normal; margin-left:8px;">Admin
+                Console</span></a>
+        <div style="display:flex; align-items:center; gap:20px; position:relative;">
+            <div class="notif-wrapper" onclick="toggleAdminNotifPanel(event)">
+                <span style="font-size:20px; cursor:pointer;">🔔</span>
+                <span class="notif-badge" id="admin-notif-badge" style="display:none;">0</span>
+                <div class="notif-panel" id="admin-notif-panel" style="top:40px; right:0;">
+                    <div class="notif-header">
+                        <h4 style="margin:0; font-size:13px; font-weight:700;">Notifications</h4>
+                        <button onclick="clearAdminNotifications(event)"
+                            style="background:none; border:none; color:var(--primary); font-size:11px; cursor:pointer; font-weight:600; padding:0;">Clear
+                            All</button>
+                    </div>
+                    <div class="notif-list" id="admin-notif-list">
+                        <p
+                            style="padding:16px; text-align:center; color:var(--on-surface-variant); font-size:13px; margin:0;">
+                            No new notifications</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="dashboard-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-profile">
+                <div class="avatar">A</div>
+                <div class="name">Administrator</div>
+                <div class="role">System Control</div>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="#" class="active" id="nav-home" onclick="switchTab('home')"><span class="icon">🏠</span> Admin
+                    Home</a>
+                <a href="#" id="nav-statistics" onclick="switchTab('statistics')"><span class="icon">📊</span> Business
+                    Dashboard</a>
+                <a href="#" id="nav-medicines" onclick="switchTab('medicines')"><span class="icon">💊</span> Inventory
+                    Stock</a>
+                <a href="#" id="nav-orders" onclick="switchTab('orders')"><span class="icon">📦</span> Order History</a>
+                <a href="#" id="nav-rx-requests" onclick="switchTab('rx-requests')"><span class="icon">📋</span> Rx
+                    Requests <span id="nav-rx-badge"
+                        style="display:none; background:#ff4d4d; color:white; font-size:10px; font-weight:800; padding:2px 6px; border-radius:10px; margin-left:auto;">0</span></a>
+                <a href="#" id="nav-users" onclick="switchTab('users')"><span class="icon">👥</span> Manage Users</a>
+                <a href="#" id="nav-consultations" onclick="switchTab('consultations')"><span class="icon">💬</span>
+                    Monitor Chats</a>
+                <a href="#" id="nav-suppliers" onclick="switchTab('suppliers')"><span class="icon">🚚</span> Manage
+                    Suppliers</a>
+            </nav>
+            <button class="logout-btn" onclick="logout()">🚪 Log Out</button>
+        </aside>
+
+        <!-- Admin Home (Medicine Catalog View) -->
+        <div class="main-area active" id="view-home">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
+                <h2 class="header-title" style="margin-bottom:0;">Admin Home — Pharmacy Catalog</h2>
+                <div style="display:flex; gap:12px;">
+
+                    <button class="btn btn-primary" onclick="openAddMedicineModal()">➕ Add Medicine</button>
+                </div>
+            </div>
+
+            <!-- Stats Summary Widgets -->
+            <div class="grid grid-3" style="margin-bottom: 32px;">
+                <div class="card card-accent-left" style="padding: 16px;">
+                    <div
+                        style="font-size: 11px; color: var(--on-surface-variant); text-transform: uppercase; letter-spacing: 0.05em; font-weight:600;">
+                        Total Medicines</div>
+                    <div id="stat-total-meds"
+                        style="font-size: 28px; font-weight: 700; color: var(--primary); margin-top: 4px;">0</div>
+                </div>
+                <div class="card" style="padding: 16px; border-left: 4px solid var(--warning);">
+                    <div
+                        style="font-size: 11px; color: var(--on-surface-variant); text-transform: uppercase; letter-spacing: 0.05em; font-weight:600;">
+                        Low Stock Warnings</div>
+                    <div id="stat-low-stock"
+                        style="font-size: 28px; font-weight: 700; color: var(--warning); margin-top: 4px;">0</div>
+                </div>
+                <div class="card" style="padding: 16px; border-left: 4px solid var(--danger);">
+                    <div
+                        style="font-size: 11px; color: var(--on-surface-variant); text-transform: uppercase; letter-spacing: 0.05em; font-weight:600;">
+                        Out of Stock</div>
+                    <div id="stat-out-of-stock"
+                        style="font-size: 28px; font-weight: 700; color: var(--danger); margin-top: 4px;">0</div>
+                </div>
+            </div>
+
+            <!-- Search and Filter Panel -->
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 24px;">
+                <input type="text" id="home-med-search" placeholder="Search medicines by name or description..."
+                    oninput="filterHomeMedicines()" style="margin-bottom:0;">
+                <select id="home-med-category" onchange="filterHomeMedicines()" style="margin-bottom:0;">
+                    <option value="ALL">All Categories</option>
+                    <option value="Analgesics">Analgesics</option>
+                    <option value="Antibiotics">Antibiotics</option>
+                    <option value="Antihypertensives">Antihypertensives</option>
+                    <option value="Antidiabetics">Antidiabetics</option>
+                    <option value="Gastrointestinal">Gastrointestinal</option>
+                    <option value="Respiratory">Respiratory</option>
+                    <option value="Cardiovascular">Cardiovascular</option>
+                    <option value="Neurological">Neurological</option>
+                    <option value="Hormones">Hormones</option>
+                    <option value="Antiparasitics">Antiparasitics</option>
+                    <option value="Antivirals">Antivirals</option>
+                    <option value="Supplements">Supplements</option>
+                    <option value="Dermatology">Dermatology</option>
+                    <option value="General">General</option>
+                </select>
+            </div>
+
+            <!-- Organized Medicines Catalog List -->
+            <div id="home-medicines-container">
+                <div style="color:var(--on-surface-variant);">Loading medicines catalog...</div>
+            </div>
+        </div>
+
+        <!-- Business Statistics Dashboard -->
+        <div class="main-area" id="view-statistics">
+            <h2 class="header-title">Business & Buy Statistics</h2>
+
+            <div class="grid grid-3" style="margin-bottom: 32px;">
+                <!-- Weekly stats -->
+                <div class="stats-period-card">
+                    <h3>Weekly Statistics</h3>
+                    <div class="stats-row">
+                        <span>Total Revenue</span>
+                        <span id="weekly-revenue">$0.00</span>
+                    </div>
+                    <div class="stats-row">
+                        <span>Net Profit (30%)</span>
+                        <span id="weekly-profit" style="color:var(--primary);">$0.00</span>
+                    </div>
+                    <div class="stats-row">
+                        <span>Approved Orders</span>
+                        <span id="weekly-orders">0</span>
+                    </div>
+                </div>
+
+                <!-- Monthly stats -->
+                <div class="stats-period-card">
+                    <h3>Monthly Statistics</h3>
+                    <div class="stats-row">
+                        <span>Total Revenue</span>
+                        <span id="monthly-revenue">$0.00</span>
+                    </div>
+                    <div class="stats-row">
+                        <span>Net Profit (30%)</span>
+                        <span id="monthly-profit" style="color:var(--primary);">$0.00</span>
+                    </div>
+                    <div class="stats-row">
+                        <span>Approved Orders</span>
+                        <span id="monthly-orders">0</span>
+                    </div>
+                </div>
+
+                <!-- Yearly stats -->
+                <div class="stats-period-card">
+                    <h3>Yearly Statistics</h3>
+                    <div class="stats-row">
+                        <span>Total Revenue</span>
+                        <span id="yearly-revenue">$0.00</span>
+                    </div>
+                    <div class="stats-row">
+                        <span>Net Profit (30%)</span>
+                        <span id="yearly-profit" style="color:var(--primary);">$0.00</span>
+                    </div>
+                    <div class="stats-row">
+                        <span>Approved Orders</span>
+                        <span id="yearly-orders">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Most Selling Medicines -->
+            <div class="card" style="margin-top:24px;">
+                <h3 style="font-size:18px; font-weight:600; margin-bottom:16px; color:var(--primary);">🔥 Top Selling
+                    Medicines</h3>
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Medicine Name</th>
+                            <th>Total Quantity Sold</th>
+                            <th>Total Revenue</th>
+                        </tr>
+                    </thead>
+                    <tbody id="top-selling-tbody">
+                        <tr>
+                            <td colspan="3" style="color:var(--on-surface-variant);">No sales recorded yet.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Inventory Stock (Tabular View) -->
+        <div class="main-area" id="view-medicines">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
+                <h2 class="header-title" style="margin-bottom:0;">Pharmacy Inventory Stock</h2>
+                <button class="btn btn-primary" onclick="openAddMedicineModal()">➕ Add Medicine</button>
+            </div>
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Medicine Name</th>
+                        <th>Category</th>
+                        <th>Price</th>
+                        <th>Stock Level</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="medicines-tbody">
+                    <tr>
+                        <td colspan="6">Loading...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Order History View -->
+        <div class="main-area" id="view-orders">
+            <h2 class="header-title">Recent Orders</h2>
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Customer</th>
+                        <th>Items</th>
+                        <th>Total</th>
+                        <th>Address</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="orders-tbody">
+                    <tr>
+                        <td colspan="6">Loading...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Users View -->
+        <div class="main-area" id="view-users">
+            <h2 class="header-title">User Management</h2>
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="users-tbody">
+                    <tr>
+                        <td colspan="5">Loading...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Consultations Monitor View -->
+        <div class="main-area" id="view-consultations">
+            <h2 class="header-title">Consultation Monitor</h2>
+            <div class="consultation-grid">
+                <div class="consult-list" id="consult-list">
+                    <div style="padding:16px;">Loading...</div>
+                </div>
+                <div class="chat-view">
+                    <div class="chat-header" id="chat-header">Select a consultation to view logs</div>
+                    <div class="chat-history" id="chat-history">
+                        <!-- Messages render here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Supplier Management View -->
+        <div class="main-area" id="view-suppliers">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
+                <h2 class="header-title" style="margin-bottom:0;">Supplier Management</h2>
+                <button class="btn btn-primary" onclick="openAddSupplierModal()">➕ Add Supplier</button>
+            </div>
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Supplier Name</th>
+                        <th>Contact Person</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Address</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="suppliers-tbody">
+                    <tr>
+                        <td colspan="7">Loading suppliers...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Prescription Requests View -->
+        <div class="main-area" id="view-rx-requests">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
+                <h2 class="header-title" style="margin-bottom:0;">Prescription Approvals</h2>
+                <div style="display:flex; gap:12px;">
+                    <select id="rx-filter-status" onchange="loadRxRequests()"
+                        style="margin-bottom:0; padding:6px 12px; border-radius:6px; background:var(--surface-container-high); border:1px solid var(--outline-variant); color:var(--on-surface);">
+                        <option value="ALL">All Requests</option>
+                        <option value="PENDING" selected>Pending Review</option>
+                        <option value="APPROVED">Approved</option>
+                        <option value="REJECTED">Rejected</option>
+                    </select>
+
+                </div>
+            </div>
+
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>User / Patient</th>
+                        <th>Medicine Product</th>
+                        <th>Patient Note</th>
+                        <th>Prescription Document</th>
+                        <th>Status</th>
+                        <th>Submitted At</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="rx-requests-tbody">
+                    <tr>
+                        <td colspan="8" style="text-align:center; padding:32px; color:var(--on-surface-variant);">
+                            Loading requests...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Rx Request Action Modal -->
+        <div id="rx-action-modal" class="modal-overlay">
+            <div class="card"
+                style="width:100%; max-width:460px; background:var(--surface-container-high); position:relative;">
+                <span onclick="closeRxActionModal()"
+                    style="position:absolute; top:16px; right:20px; font-size:24px; cursor:pointer; color:var(--on-surface-variant);">&times;</span>
+                <h3 id="rx-modal-title" style="margin-bottom:12px; font-size:18px; font-weight:700;">Review Prescription
+                    Request</h3>
+                <p id="rx-modal-subtitle" style="font-size:13px; color:var(--on-surface-variant); margin-bottom:20px;">
+                    Reviewing request for ...</p>
+
+                <label for="rx-admin-note"
+                    style="font-size:13px; font-weight:600; color:var(--on-surface-variant); margin-bottom:6px; display:block;">Admin
+                    Feedback / Reason</label>
+                <textarea id="rx-admin-note" rows="3" placeholder="Enter reason for rejection or approval comments..."
+                    style="width:100%; padding:12px; background:var(--surface-container-low); border:1px solid var(--outline-variant); border-radius:8px; color:var(--on-surface); outline:none; resize:none; margin-bottom:20px; font-family:inherit; font-size:14px;"></textarea>
+
+                <div style="display:flex; justify-content:flex-end; gap:12px;">
+                    <button class="btn btn-outline" onclick="closeRxActionModal()">Cancel</button>
+                    <button id="rx-modal-action-btn" class="btn btn-primary">Submit Decision</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Medicine Modal Overlay -->
+        <div id="add-medicine-modal" class="modal-overlay">
+            <div class="card"
+                style="width:100%; max-width:500px; background:var(--surface-container-high); position:relative;">
+                <span onclick="closeAddMedicineModal()"
+                    style="position:absolute; top:16px; right:20px; font-size:24px; cursor:pointer; color:var(--on-surface-variant);">&times;</span>
+                <h3 style="margin-bottom:20px; color:var(--primary); font-size:18px;">Add New Medicine Product</h3>
+                <form id="add-medicine-form" onsubmit="handleAddMedicine(event)">
+                    <label for="new-med-name">Medicine Name</label>
+                    <input type="text" id="new-med-name" required placeholder="e.g. Paracetamol 500mg">
+
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+                        <div>
+                            <label for="new-med-price">Price ($)</label>
+                            <input type="number" step="0.01" id="new-med-price" required placeholder="5.50">
+                        </div>
+                        <div>
+                            <label for="new-med-stock">Initial Stock</label>
+                            <input type="number" id="new-med-stock" required placeholder="100">
+                        </div>
+                    </div>
+
+                    <label for="new-med-category">Category</label>
+                    <select id="new-med-category">
+                        <option value="Analgesics">Analgesics</option>
+                        <option value="Antibiotics">Antibiotics</option>
+                        <option value="Antihypertensives">Antihypertensives</option>
+                        <option value="Antidiabetics">Antidiabetics</option>
+                        <option value="Gastrointestinal">Gastrointestinal</option>
+                        <option value="Respiratory">Respiratory</option>
+                        <option value="Cardiovascular">Cardiovascular</option>
+                        <option value="Neurological">Neurological</option>
+                        <option value="Hormones">Hormones</option>
+                        <option value="Antiparasitics">Antiparasitics</option>
+                        <option value="Antivirals">Antivirals</option>
+                        <option value="Supplements">Supplements</option>
+                        <option value="Dermatology">Dermatology</option>
+                        <option value="General">General</option>
+                    </select>
+
+                    <label for="new-med-desc">Description</label>
+                    <textarea id="new-med-desc" rows="3" placeholder="Enter medicine description..."
+                        style="width:100%; padding:12px 16px; background:var(--surface-container-low); border:1px solid var(--outline-variant); border-radius:var(--rounded); color:var(--on-surface); outline:none; margin-bottom:16px;"></textarea>
+
+                    <label for="new-med-img">Image URL</label>
+                    <input type="text" id="new-med-img" placeholder="e.g. /medicine-pics/paracetamol.webp">
+
+                    <button type="submit" class="btn btn-primary w-full" style="margin-top:16px;">Save Medicine</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Add Supplier Modal Overlay -->
+        <div id="add-supplier-modal" class="modal-overlay">
+            <div class="card"
+                style="width:100%; max-width:500px; background:var(--surface-container-high); position:relative;">
+                <span onclick="closeAddSupplierModal()"
+                    style="position:absolute; top:16px; right:20px; font-size:24px; cursor:pointer; color:var(--on-surface-variant);">&times;</span>
+                <h3 style="margin-bottom:20px; color:var(--primary); font-size:18px;">Add New Supplier</h3>
+                <form id="add-supplier-form" onsubmit="handleAddSupplier(event)">
+                    <label for="sup-name">Supplier Name</label>
+                    <input type="text" id="sup-name" required placeholder="e.g. Global Pharma Corp">
+
+                    <label for="sup-contact">Contact Person</label>
+                    <input type="text" id="sup-contact" required placeholder="e.g. John Doe">
+
+                    <label for="sup-email">Email Address</label>
+                    <input type="email" id="sup-email" required placeholder="contact@supplier.com">
+
+                    <label for="sup-phone">Phone Number</label>
+                    <input type="text" id="sup-phone" required placeholder="e.g. +1-555-0199">
+
+                    <label for="sup-address">Address</label>
+                    <textarea id="sup-address" rows="3" placeholder="Enter physical address..."
+                        style="width:100%; padding:12px 16px; background:var(--surface-container-low); border:1px solid var(--outline-variant); border-radius:var(--rounded); color:var(--on-surface); outline:none; margin-bottom:16px;"></textarea>
+
+                    <button type="submit" class="btn btn-primary w-full" style="margin-top:16px;">Save Supplier</button>
+                </form>
+            </div>
+        </div>
+
+        <script>
+            const user = JSON.parse(localStorage.getItem('user') || 'null');
+            if (!user || user.role !== 'ADMIN') { window.location.href = 'login.html'; }
+
+            let pollingInterval = null;
+            let activeTab = 'home';
+            let activeChatId = null;
+            let allMedicines = [];
+
+            document.addEventListener('DOMContentLoaded', () => {
+                loadHomeMedicines();
+                loadAdminNotifications();
+                loadRxRequestsBadge();
+                startPolling();
+            });
+
+            function startPolling() {
+                if (pollingInterval) clearInterval(pollingInterval);
+                pollingInterval = setInterval(() => {
+                    loadAdminNotifications(true);
+                    loadRxRequestsBadge();
+                    if (activeTab === 'medicines') loadMedicines(true);
+                    else if (activeTab === 'orders') loadAllOrders(true);
+                    else if (activeTab === 'users') loadUsers(true);
+                    else if (activeTab === 'suppliers') loadSuppliers(true);
+                    else if (activeTab === 'rx-requests') loadRxRequests(true);
+                    else if (activeTab === 'consultations') {
+                        loadConsultations(true);
+                        if (activeChatId) viewChat(activeChatId, null, null, true);
+                    }
+                }, 4000);
+            }
+
+            function switchTab(tab) {
+                activeTab = tab;
+                document.querySelectorAll('.main-area').forEach(el => el.classList.remove('active'));
+                document.querySelectorAll('.sidebar-nav a').forEach(a => a.classList.remove('active'));
+                document.getElementById(`nav-${tab}`).classList.add('active');
+                document.getElementById(`view-${tab}`).classList.add('active');
+
+                if (tab === 'home') loadHomeMedicines();
+                if (tab === 'statistics') loadDashboardStats();
+                if (tab === 'medicines') loadMedicines();
+                if (tab === 'orders') loadAllOrders();
+                if (tab === 'users') loadUsers();
+                if (tab === 'rx-requests') loadRxRequests();
+                if (tab === 'consultations') loadConsultations();
+                if (tab === 'suppliers') loadSuppliers();
+            }
+
+            // --- ADMIN HOME (CATALOG VIEW) ---
+            async function loadHomeMedicines(isBackground = false) {
+                try {
+                    const res = await fetch('/api/medicines');
+                    allMedicines = await res.json();
+
+                    // Calculate stock widgets
+                    const totalMeds = allMedicines.length;
+                    const outOfStock = allMedicines.filter(m => m.stock === 0).length;
+                    const lowStock = allMedicines.filter(m => m.stock > 0 && m.stock < 10).length;
+
+                    document.getElementById('stat-total-meds').textContent = totalMeds;
+                    document.getElementById('stat-out-of-stock').textContent = outOfStock;
+                    document.getElementById('stat-low-stock').textContent = lowStock;
+
+                    filterHomeMedicines();
+                } catch (e) { console.error(e); }
+            }
+
+            function filterHomeMedicines() {
+                const query = document.getElementById('home-med-search').value.toLowerCase();
+                const categorySelect = document.getElementById('home-med-category').value;
+                const container = document.getElementById('home-medicines-container');
+
+                let filtered = allMedicines;
+                if (categorySelect !== 'ALL') {
+                    filtered = filtered.filter(m => m.category === categorySelect);
+                }
+                if (query.trim() !== '') {
+                    filtered = filtered.filter(m => m.name.toLowerCase().includes(query) || (m.description && m.description.toLowerCase().includes(query)));
+                }
+
+                if (filtered.length === 0) {
+                    container.innerHTML = `<div style="text-align:center; padding:40px; color:var(--on-surface-variant);">No medicines match your filters.</div>`;
+                    return;
+                }
+
+                // Group by category
+                const grouped = {};
+                filtered.forEach(m => {
+                    const cat = m.category || 'General';
+                    if (!grouped[cat]) grouped[cat] = [];
+                    grouped[cat].push(m);
+                });
+
+                container.innerHTML = '';
+                for (const [category, list] of Object.entries(grouped)) {
+                    let categoryHtml = `
+                    <div class="category-block animate-fade-in">
+                        <div class="category-title">
+                            <span>📦</span> ${category} (${list.length})
+                        </div>
+                        <div class="category-grid">
+                `;
+
+                    list.forEach(m => {
+                        let stockClass = 'badge-success';
+                        if (m.stock === 0) stockClass = 'badge-danger';
+                        else if (m.stock < 10) stockClass = 'badge-warning';
+
+                        categoryHtml += `
+                        <div class="medicine-card">
+                            <img src="${m.imageUrl || 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=150'}" onerror="this.src='https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=150'">
+                            <div class="medicine-details">
+                                <div>
+                                    <div class="medicine-name">${m.name}</div>
+                                    <div class="medicine-desc">${m.description || 'No description available'}</div>
+                                </div>
+                                <div class="medicine-meta">
+                                    <span class="medicine-price">$${m.price.toFixed(2)}</span>
+                                    <span class="badge ${stockClass}">${m.stock} units</span>
+                                </div>
+                            </div>
+                            <div class="medicine-actions">
+                                <button class="action-btn" onclick="updateStock(${m.id}, '${m.name}', ${m.stock})" style="margin-right:0;">Stock</button>
+                                <button class="action-btn danger" onclick="deleteMedicine(${m.id})" style="margin-right:0;">Delete</button>
+                            </div>
+                        </div>
+                    `;
+                    });
+
+                    categoryHtml += `
+                        </div>
+                    </div>
+                `;
+                    container.innerHTML += categoryHtml;
+                }
+            }
+
+            async function deleteMedicine(id) {
+                if (!confirm('Are you sure you want to delete this medicine? This action cannot be undone.')) return;
+                try {
+                    await fetch(`/api/medicines/${id}`, { method: 'DELETE' });
+                    loadHomeMedicines();
+                } catch (e) { alert('Failed to delete medicine.'); }
+            }
+
+            // --- BUSINESS STATS ---
+            async function loadDashboardStats(isBackground = false) {
+                try {
+                    const res = await fetch('/api/admin/stats');
+                    if (!res.ok) return;
+                    const stats = await res.json();
+
+                    document.getElementById('weekly-revenue').textContent = `$${stats.weekly.revenue.toFixed(2)}`;
+                    document.getElementById('weekly-profit').textContent = `$${stats.weekly.profit.toFixed(2)}`;
+                    document.getElementById('weekly-orders').textContent = stats.weekly.ordersCount;
+
+                    document.getElementById('monthly-revenue').textContent = `$${stats.monthly.revenue.toFixed(2)}`;
+                    document.getElementById('monthly-profit').textContent = `$${stats.monthly.profit.toFixed(2)}`;
+                    document.getElementById('monthly-orders').textContent = stats.monthly.ordersCount;
+
+                    document.getElementById('yearly-revenue').textContent = `$${stats.yearly.revenue.toFixed(2)}`;
+                    document.getElementById('yearly-profit').textContent = `$${stats.yearly.profit.toFixed(2)}`;
+                    document.getElementById('yearly-orders').textContent = stats.yearly.ordersCount;
+
+                    const tbody = document.getElementById('top-selling-tbody');
+                    tbody.innerHTML = '';
+                    if (stats.topSelling.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--on-surface-variant);">No sales recorded yet.</td></tr>';
+                    } else {
+                        stats.topSelling.forEach(item => {
+                            tbody.innerHTML += `
+                            <tr>
+                                <td><strong>${item.medicineName}</strong></td>
+                                <td>${item.quantitySold} units</td>
+                                <td><span style="color:var(--primary); font-weight:600;">$${item.revenue.toFixed(2)}</span></td>
+                            </tr>
+                        `;
+                        });
+                    }
+                } catch (e) { console.error(e); }
+            }
+
+            // --- INVENTORY STOCK (TABULAR VIEW) ---
+            async function loadMedicines(isBackground = false) {
+                try {
+                    const res = await fetch('/api/medicines');
+                    const meds = await res.json();
+                    const tbody = document.getElementById('medicines-tbody');
+                    tbody.innerHTML = '';
+                    meds.forEach(m => {
+                        const stockWarning = m.stock < 10 ? 'color: var(--warning); font-weight: bold;' : '';
+                        tbody.innerHTML += `
+                        <tr>
+                            <td>${m.id}</td>
+                            <td><strong>${m.name}</strong></td>
+                            <td><span class="badge badge-neutral">${m.category || 'General'}</span></td>
+                            <td>$${m.price.toFixed(2)}</td>
+                            <td style="${stockWarning}">${m.stock} units</td>
+                            <td>
+                                <button class="action-btn" onclick="updateStock(${m.id}, '${m.name}', ${m.stock})">Update Stock</button>
+                                <button class="action-btn danger" onclick="deleteMedicine(${m.id})">Delete</button>
+                            </td>
+                        </tr>
+                    `;
+                    });
+                } catch (e) { console.error(e); }
+            }
+
+            async function updateStock(id, name, currentStock) {
+                const newStock = prompt(`Enter new stock for ${name}:`, currentStock);
+                if (newStock === null || isNaN(newStock)) return;
+                try {
+                    await fetch(`/api/medicines/${id}/stock`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ stock: parseInt(newStock) })
+                    });
+                    if (activeTab === 'home') loadHomeMedicines();
+                    else loadMedicines();
+                } catch (e) { alert('Failed to update stock.'); }
+            }
+
+            // --- SUPPLIERS ---
+            async function loadSuppliers(isBackground = false) {
+                try {
+                    const res = await fetch('/api/suppliers');
+                    const sups = await res.json();
+                    const tbody = document.getElementById('suppliers-tbody');
+                    tbody.innerHTML = '';
+                    if (sups.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--on-surface-variant);">No suppliers found. Click Add Supplier to create one.</td></tr>';
+                        return;
+                    }
+                    sups.forEach(s => {
+                        tbody.innerHTML += `
+                        <tr>
+                            <td>${s.id}</td>
+                            <td><strong>${s.name}</strong></td>
+                            <td>${s.contactPerson}</td>
+                            <td>${s.email}</td>
+                            <td>${s.phone}</td>
+                            <td><span style="font-size:12px; color:var(--on-surface-variant);">${s.address || 'N/A'}</span></td>
+                            <td>
+                                <button class="action-btn danger" onclick="deleteSupplier(${s.id})">Remove</button>
+                            </td>
+                        </tr>
+                    `;
+                    });
+                } catch (e) { console.error(e); }
+            }
+
+            async function deleteSupplier(id) {
+                if (!confirm('Are you sure you want to remove this supplier?')) return;
+                try {
+                    await fetch(`/api/suppliers/${id}`, { method: 'DELETE' });
+                    loadSuppliers();
+                } catch (e) { alert('Failed to remove supplier.'); }
+            }
+
+            // Add Medicine Modal Controls
+            function openAddMedicineModal() {
+                document.getElementById('add-medicine-modal').classList.add('active');
+            }
+            function closeAddMedicineModal() {
+                document.getElementById('add-medicine-modal').classList.remove('active');
+            }
+            async function handleAddMedicine(e) {
+                e.preventDefault();
+                const name = document.getElementById('new-med-name').value;
+                const price = parseFloat(document.getElementById('new-med-price').value);
+                const stock = parseInt(document.getElementById('new-med-stock').value);
+                const category = document.getElementById('new-med-category').value;
+                const description = document.getElementById('new-med-desc').value;
+                const imageUrl = document.getElementById('new-med-img').value;
+
+                try {
+                    const res = await fetch('/api/medicines', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ name, price, stock, category, description, imageUrl })
+                    });
+                    if (res.ok) {
+                        closeAddMedicineModal();
+                        document.getElementById('add-medicine-form').reset();
+                        loadHomeMedicines();
+                    } else {
+                        alert('Failed to add medicine product.');
+                    }
+                } catch (err) { console.error(err); }
+            }
+
+            // Add Supplier Modal Controls
+            function openAddSupplierModal() {
+                document.getElementById('add-supplier-modal').classList.add('active');
+            }
+            function closeAddSupplierModal() {
+                document.getElementById('add-supplier-modal').classList.remove('active');
+            }
+            async function handleAddSupplier(e) {
+                e.preventDefault();
+                const name = document.getElementById('sup-name').value;
+                const contactPerson = document.getElementById('sup-contact').value;
+                const email = document.getElementById('sup-email').value;
+                const phone = document.getElementById('sup-phone').value;
+                const address = document.getElementById('sup-address').value;
+
+                try {
+                    const res = await fetch('/api/suppliers', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ name, contactPerson, email, phone, address })
+                    });
+                    if (res.ok) {
+                        closeAddSupplierModal();
+                        document.getElementById('add-supplier-form').reset();
+                        loadSuppliers();
+                    } else {
+                        alert('Failed to save supplier info.');
+                    }
+                } catch (err) { console.error(err); }
+            }
+
+            // --- USERS ---
+            async function loadUsers(isBackground = false) {
+                try {
+                    const res = await fetch('/api/users');
+                    const users = await res.json();
+                    const tbody = document.getElementById('users-tbody');
+                    tbody.innerHTML = '';
+                    users.forEach(u => {
+                        tbody.innerHTML += `
+                        <tr>
+                            <td>${u.id}</td>
+                            <td>${u.name}</td>
+                            <td>${u.email}</td>
+                            <td><span class="badge ${u.role === 'ADMIN' ? 'badge-warning' : 'badge-success'}">${u.role}</span></td>
+                            <td>
+                                ${u.role !== 'ADMIN' ? `<button class="action-btn danger" onclick="deleteUser(${u.id})">Delete</button>` : ''}
+                            </td>
+                        </tr>
+                    `;
+                    });
+                } catch (e) { console.error(e); }
+            }
+
+            async function deleteUser(id) {
+                if (!confirm('Are you sure you want to delete this user? This may break foreign keys if they have active data.')) return;
+                try {
+                    await fetch(`/api/users/${id}`, { method: 'DELETE' });
+                    loadUsers();
+                } catch (e) { alert('Failed to delete user.'); }
+            }
+
+            // --- ORDERS ---
+            async function loadAllOrders(isBackground = false) {
+                try {
+                    const res = await fetch('/api/orders/all');
+                    if (!res.ok) return;
+                    const orders = await res.json();
+                    const tbody = document.getElementById('orders-tbody');
+                    tbody.innerHTML = '';
+                    orders.forEach(o => {
+                        let itemsStr = o.items ? o.items.map(i => `${i.medicine ? i.medicine.name : 'Item'} x${i.quantity}`).join(', ') : 'No items';
+                        tbody.innerHTML += `
+                        <tr>
+                            <td>#${o.id}</td>
+                            <td><strong>${o.user ? o.user.name : 'Unknown'}</strong></td>
+                            <td><span style="font-size:12px;">${itemsStr}</span></td>
+                            <td>$${o.totalPrice ? o.totalPrice.toFixed(2) : '0.00'}</td>
+                            <td><span style="font-size:12px; color:var(--on-surface-variant);">${o.deliveryAddress || 'N/A'}</span></td>
+                            <td><span class="badge ${o.status === 'APPROVED' ? 'badge-success' : 'badge-warning'}">${o.status}</span></td>
+                        </tr>
+                    `;
+                    });
+                } catch (e) { console.error(e); }
+            }
+
+            // --- CONSULTATIONS ---
+            async function loadConsultations(isBackground = false) {
+                try {
+                    const res = await fetch('/api/consultations');
+                    const consults = await res.json();
+                    const list = document.getElementById('consult-list');
+                    list.innerHTML = '';
+                    consults.forEach(c => {
+                        const pName = c.patient ? c.patient.name : 'Unknown';
+                        const dName = c.doctor && c.doctor.user ? c.doctor.user.name : 'Unknown';
+                        list.innerHTML += `
+                        <div class="consult-item ${activeChatId === c.id ? 'active' : ''}" onclick="viewChat(${c.id}, '${pName}', '${dName}')">
+                            <div class="consult-title">Consultation #${c.id}</div>
+                            <div class="consult-sub">Patient: ${pName}</div>
+                            <div class="consult-sub">Doctor: ${dName}</div>
+                            <div class="consult-sub" style="margin-top: 4px; font-weight: 600; color: ${c.status === 'OPEN' ? 'var(--primary)' : 'var(--outline)'};">${c.status}</div>
+                        </div>
+                    `;
+                    });
+                } catch (e) { console.error(e); }
+            }
+
+            async function viewChat(id, pName, dName, isBackground = false) {
+                activeChatId = id;
+                if (!isBackground) {
+                    document.querySelectorAll('.consult-item').forEach(el => el.classList.remove('active'));
+                    if (pName && dName) document.getElementById('chat-header').textContent = `Log: ${pName} & ${dName}`;
+                }
+
+                try {
+                    const res = await fetch(`/api/consultations/${id}/messages`);
+                    const msgs = await res.json();
+                    const history = document.getElementById('chat-history');
+
+                    const isAtBottom = history.scrollHeight - history.clientHeight <= history.scrollTop + 10;
+
+                    history.innerHTML = '';
+
+                    if (msgs.length === 0) {
+                        history.innerHTML = '<div style="color:var(--outline); text-align:center;">No messages found.</div>';
+                        return;
+                    }
+
+                    msgs.forEach(m => {
+                        history.innerHTML += `
+                        <div class="msg-wrapper">
+                            <div class="msg-sender">${m.sender ? m.sender.name : 'System'}</div>
+                            <div class="msg-bubble">${m.content.replace(/\n/g, '<br>')}</div>
+                            <div class="msg-meta">${new Date(m.timestamp).toLocaleString()}</div>
+                        </div>
+                    `;
+                    });
+
+                    if (isAtBottom || !isBackground) {
+                        history.scrollTop = history.scrollHeight;
+                    }
+                } catch (e) { console.error(e); }
+            }
+
+            // --- ADMIN NOTIFICATIONS ---
+            let adminNotifPanelOpen = false;
+
+            function toggleAdminNotifPanel(event) {
+                if (event) event.stopPropagation();
+                adminNotifPanelOpen = !adminNotifPanelOpen;
+                const panel = document.getElementById('admin-notif-panel');
+                if (adminNotifPanelOpen) {
+                    panel.classList.add('open');
+                    // mark all as read
+                    fetch(`/api/notifications/read-all?userId=${user.id}`, { method: 'POST' })
+                        .then(() => loadAdminNotifications(true));
+                } else {
+                    panel.classList.remove('open');
+                }
+            }
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', () => {
+                const panel = document.getElementById('admin-notif-panel');
+                if (panel && adminNotifPanelOpen) {
+                    panel.classList.remove('open');
+                    adminNotifPanelOpen = false;
+                }
+            });
+
+            async function loadAdminNotifications(isBackground = false) {
+                try {
+                    // Fetch unread count
+                    const countRes = await fetch(`/api/notifications/unread-count?userId=${user.id}`);
+                    const count = await countRes.json();
+                    const badge = document.getElementById('admin-notif-badge');
+                    if (count > 0) {
+                        badge.textContent = count;
+                        badge.style.display = 'flex';
+                    } else {
+                        badge.style.display = 'none';
+                    }
+
+                    // Fetch list
+                    const listRes = await fetch(`/api/notifications?userId=${user.id}`);
+                    const notifs = await listRes.json();
+                    const container = document.getElementById('admin-notif-list');
+
+                    if (notifs.length === 0) {
+                        container.innerHTML = `<p style="padding:16px; text-align:center; color:var(--on-surface-variant); font-size:13px; margin:0;">No notifications</p>`;
+                        return;
+                    }
+
+                    container.innerHTML = '';
+                    notifs.forEach(n => {
+                        const timeStr = new Date(n.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                        container.innerHTML += `
+                        <div class="notif-item ${n.isRead ? '' : 'unread'}" onclick="handleNotifClick(${n.id})">
+                            <p>${n.message}</p>
+                            <span>${timeStr}</span>
+                        </div>
+                    `;
+                    });
+                } catch (e) {
+                    console.error("Error loading notifications:", e);
+                }
+            }
+
+            function handleNotifClick(notifId) {
+                fetch(`/api/notifications/${notifId}/read`, { method: 'POST' })
+                    .then(() => {
+                        loadAdminNotifications(true);
+                        // If notif contains "prescription request", navigate to rx requests tab
+                        switchTab('rx-requests');
+                    });
+            }
+
+            async function clearAdminNotifications(event) {
+                if (event) event.stopPropagation();
+                try {
+                    await fetch(`/api/notifications?userId=${user.id}`, { method: 'DELETE' });
+                    loadAdminNotifications(true);
+                } catch (e) {
+                    console.error("Error clearing notifications:", e);
+                }
+            }
+
+            // --- PRESCRIPTION REQUESTS MANAGEMENT ---
+            let currentReviewReqId = null;
+            let currentReviewAction = ''; // 'approve' or 'reject'
+
+            async function loadRxRequestsBadge() {
+                try {
+                    const res = await fetch('/api/prescription-requests/pending/count');
+                    const count = await res.json();
+                    const badge = document.getElementById('nav-rx-badge');
+                    if (count > 0) {
+                        badge.textContent = count;
+                        badge.style.display = 'inline-block';
+                    } else {
+                        badge.style.display = 'none';
+                    }
+                } catch (e) {
+                    console.error("Error loading Rx badge count:", e);
+                }
+            }
+
+            async function loadRxRequests(isBackground = false) {
+                const statusFilter = document.getElementById('rx-filter-status').value;
+                let url = '/api/prescription-requests';
+                if (statusFilter !== 'ALL') {
+                    url += `?status=${statusFilter}`;
+                }
+
+                try {
+                    const res = await fetch(url);
+                    const reqs = await res.json();
+                    const tbody = document.getElementById('rx-requests-tbody');
+
+                    if (reqs.length === 0) {
+                        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:32px; color:var(--on-surface-variant);">No prescription requests found matching criteria.</td></tr>`;
+                        return;
+                    }
+
+                    tbody.innerHTML = '';
+                    reqs.forEach(r => {
+                        const userDisplay = `<strong>${r.user.name}</strong><br><span style="font-size:11px; color:var(--outline);">${r.user.email}</span>`;
+                        const medDisplay = `<strong>${r.medicine.name}</strong><br><span class="badge" style="font-size:10px; padding:2px 6px; background:rgba(79, 219, 200, 0.1); color:var(--primary);">${r.medicine.category}</span>`;
+                        const dateStr = new Date(r.createdAt).toLocaleString();
+
+                        let statusClass = 'pending';
+                        if (r.status === 'APPROVED') statusClass = 'approved';
+                        if (r.status === 'REJECTED') statusClass = 'rejected';
+
+                        const docDisplay = r.prescriptionImageUrl
+                            ? `<a href="${r.prescriptionImageUrl}" target="_blank" class="btn btn-outline" style="padding:4px 8px; font-size:11px; display:inline-block;">🖼️ View Doc</a>`
+                            : `<span style="color:var(--outline); font-style:italic; font-size:12px;">No Doc URL (Text Only)</span>`;
+
+                        let actionsHtml = '-';
+                        if (r.status === 'PENDING') {
+                            actionsHtml = `
+                            <div style="display:flex; gap:8px;">
+                                <button class="btn btn-primary" style="padding:6px 12px; font-size:12px; background:var(--success); border-color:var(--success); color:#000;" onclick="openRxActionModal(${r.id}, 'approve', '${r.medicine.name}')">Approve</button>
+                                <button class="btn btn-primary" style="padding:6px 12px; font-size:12px; background:var(--danger); border-color:var(--danger); color:#fff;" onclick="openRxActionModal(${r.id}, 'reject', '${r.medicine.name}')">Reject</button>
+                            </div>
+                        `;
+                        } else if (r.adminNote) {
+                            actionsHtml = `<span style="font-size:11px; color:var(--on-surface-variant); max-width:150px; display:inline-block; overflow:hidden; text-overflow:ellipsis;" title="${r.adminNote}">Note: ${r.adminNote}</span>`;
+                        }
+
+                        tbody.innerHTML += `
+                        <tr>
+                            <td>#${r.id}</td>
+                            <td>${userDisplay}</td>
+                            <td>${medDisplay}</td>
+                            <td style="max-width:200px; white-space:normal; font-size:12px;">${r.patientNote || 'No description note provided.'}</td>
+                            <td>${docDisplay}</td>
+                            <td><span class="status-badge ${statusClass}">${r.status}</span></td>
+                            <td style="font-size:12px; color:var(--outline);">${dateStr}</td>
+                            <td>${actionsHtml}</td>
+                        </tr>
+                    `;
+                    });
+                } catch (e) {
+                    console.error("Error loading prescription requests:", e);
+                }
+            }
+
+            function openRxActionModal(id, action, medName) {
+                currentReviewReqId = id;
+                currentReviewAction = action;
+                document.getElementById('rx-modal-title').textContent = action === 'approve' ? 'Approve Prescription' : 'Reject Prescription';
+                document.getElementById('rx-modal-subtitle').textContent = `Please review prescription request #${id} for medicine: ${medName}`;
+                document.getElementById('rx-admin-note').value = '';
+                document.getElementById('rx-modal-action-btn').textContent = action === 'approve' ? 'Approve Request' : 'Reject Request';
+                document.getElementById('rx-modal-action-btn').onclick = submitRxAction;
+                document.getElementById('rx-action-modal').classList.add('active');
+            }
+
+            function closeRxActionModal() {
+                document.getElementById('rx-action-modal').classList.remove('active');
+                currentReviewReqId = null;
+            }
+
+            async function submitRxAction() {
+                if (!currentReviewReqId) return;
+                const adminNote = document.getElementById('rx-admin-note').value.trim();
+                const endpoint = `/api/prescription-requests/${currentReviewReqId}/${currentReviewAction}`;
+
+                try {
+                    const res = await fetch(endpoint, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ adminNote: adminNote })
+                    });
+
+                    if (res.ok) {
+                        closeRxActionModal();
+                        loadRxRequests();
+                        loadRxRequestsBadge();
+                    } else {
+                        alert("Failed to save decision. Please try again.");
+                    }
+                } catch (e) {
+                    console.error(e);
+                    alert("Network error. Please try again.");
+                }
+            }
+
+            function logout() {
+                localStorage.removeItem('user');
+                window.location.href = 'login.html';
+            }
+        </script>
+</body>
+
+</html>
